@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using StudyFlow.Api.Data;
 using StudyFlow.Api.Data.Repositories;
+using StudyFlow.Api.Domain.Interfaces.Conexao;
 using StudyFlow.Api.Domain.Interfaces.Notas;
 using StudyFlow.Api.Domain.Interfaces.Temas;
 using StudyFlow.Api.Services;
@@ -22,6 +23,8 @@ builder.Services.AddScoped<ITemaRepository, TemaRepository>();
 builder.Services.AddScoped<ITemaService, TemaService>();
 builder.Services.AddScoped<INotaRepository, NotaRepository>();
 builder.Services.AddScoped<INotaService, NotaService>();
+builder.Services.AddScoped<IConexaoNotaRepository, ConexaoNotaRepository>();
+builder.Services.AddScoped<IConexaoNotaService, ConexaoNotaService>();
 
 var app = builder.Build();
 

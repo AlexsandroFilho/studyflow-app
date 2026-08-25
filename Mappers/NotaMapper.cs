@@ -33,5 +33,17 @@ namespace StudyFlow.Api.Mappers
                 DataCriacao = DateTime.UtcNow
             };
         }
+
+        public static Nota criarNovaNota(string titulo, string conteudo, int temaId, string? resumoIa = null)
+        {
+            return new Nota
+            {
+                Titulo = titulo.Trim(),
+                Conteudo = conteudo,
+                TemaId = temaId,
+                ResumoIA = resumoIa,
+                DataCriacao = DateTime.UtcNow
+            };
+        }
     }
 }

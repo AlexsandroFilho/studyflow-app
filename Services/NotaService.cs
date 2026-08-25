@@ -45,7 +45,6 @@ namespace StudyFlow.Api.Services
             await _notaRepository.CriarAsync(nota);
             await _notaRepository.SalvarAlteracoesAsync();
 
-            // Garantimos que o nome do tema seja propagado no DTO de retorno
             nota.Tema = temaExistente;
 
             return nota.toResponseDto();
