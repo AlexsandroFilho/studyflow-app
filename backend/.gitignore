@@ -1,0 +1,22 @@
+## Build and Output
+[Bb]in/
+[Oo]bj/
+out/
+
+## Environment & Secrets
+*.user
+appsettings.Development.json
+appsettings.*.json
+!appsettings.json
+
+## IDEs & Editors
+.vscode/
+.idea/
+*.suo
+*.userossc
+*.sln.docstates
+
+## Entity Framework Core
+*.db
+*.db-shm
+*.db-wal

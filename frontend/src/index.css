@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-[#161B22] text-[#DDE6ED] antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  ::selection {
+    background-color: rgba(157, 178, 191, 0.35);
+    color: #DDE6ED;
+  }
+}
+
+/* Custom Scrollbar — Steel Blue / Graphite */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #161B22;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #526D82;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9DB2BF;
+}
