@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\alexo\\Documents\\studyflow-app-v1\\StudyFlow.Api\\StudyFlow.Api.csproj": {}
+    "C:\\Users\\alexo\\Documents\\studyflow-app-v1\\backend\\StudyFlow.Api\\StudyFlow.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\alexo\\Documents\\studyflow-app-v1\\StudyFlow.Api\\StudyFlow.Api.csproj": {
+    "C:\\Users\\alexo\\Documents\\studyflow-app-v1\\backend\\StudyFlow.Api\\StudyFlow.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\alexo\\Documents\\studyflow-app-v1\\StudyFlow.Api\\StudyFlow.Api.csproj",
+        "projectUniqueName": "C:\\Users\\alexo\\Documents\\studyflow-app-v1\\backend\\StudyFlow.Api\\StudyFlow.Api.csproj",
         "projectName": "StudyFlow.Api",
-        "projectPath": "C:\\Users\\alexo\\Documents\\studyflow-app-v1\\StudyFlow.Api\\StudyFlow.Api.csproj",
+        "projectPath": "C:\\Users\\alexo\\Documents\\studyflow-app-v1\\backend\\StudyFlow.Api\\StudyFlow.Api.csproj",
         "packagesPath": "C:\\Users\\alexo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\alexo\\Documents\\studyflow-app-v1\\StudyFlow.Api\\obj\\",
+        "outputPath": "C:\\Users\\alexo\\Documents\\studyflow-app-v1\\backend\\StudyFlow.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\alexo\\AppData\\Roaming\\NuGet\\NuGet.Config"

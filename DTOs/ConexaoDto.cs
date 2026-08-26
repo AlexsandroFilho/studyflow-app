@@ -1,7 +1,4 @@
 
-
-using Microsoft.EntityFrameworkCore.Storage;
-
 namespace StudyFlow.Api.DTOs
 {
     public record CreateConexaoDto (
