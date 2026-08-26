@@ -3,16 +3,37 @@ import { Nota } from "../types/nota";
 import { Conexao } from "../types/conexao";
 import { CanvasNode, CanvasEdge, CanvasViewport, Position } from "../types/canvas";
 
-// Paleta Steel Blue & Slate Gray
+export type AnchorSide = "top" | "right" | "bottom" | "left";
+
+export interface ConnectionAnchor {
+  nodeId: number;
+  side: AnchorSide;
+}
+
+const LOCAL_STORAGE_POSITIONS_KEY = "canvas_node_positions";
+
+function getSavedPositions(): Record<number, Position> {
+  try {
+    const saved = localStorage.getItem(LOCAL_STORAGE_POSITIONS_KEY);
+    return saved ? JSON.parse(saved) : {};
+  } catch {
+    return {};
+  }
+}
+
+function savePositions(positions: Record<number, Position>) {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_POSITIONS_KEY, JSON.stringify(positions));
+  } catch (err) {
+    console.error("Erro ao salvar posições do canvas:", err);
+  }
+}
+
 const THEME_COLORS = [
-  "#526D82", // Azul-aço médio (Principal)
-  "#7E9CB3", // Azul-ardósia claro
-  "#9DB2BF", // Cinza-azul suave
-  "#6C8AA1", // Azul-aço profundo
-  "#8FA7BC", // Névoa azulada
-  "#5D7A91", // Grafite azulado
-  "#ABC0CF", // Azul-gelo suave
-  "#7493A8", // Azul-oceano fosco
+  "#6C35D9",
+  "#9B72E8",
+  "#5120B5",
+  "#D9C8F7",
 ];
 
 export function getThemeColor(temaId: number): string {
@@ -23,15 +44,16 @@ export function getThemeColor(temaId: number): string {
 export function useCanvas(
   notas: Nota[],
   conexoes: Conexao[],
-  onConnectNodes?: (sourceId: number, targetId: number) => void
+  onConnectNodes?: (source: ConnectionAnchor, target: ConnectionAnchor) => void
 ) {
   const [nodes, setNodes] = useState<CanvasNode[]>([]);
   const [viewport, setViewport] = useState<CanvasViewport>({ x: 120, y: 100, zoom: 1 });
   const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
 
-  // Linha de conexão interativa (arraste para conectar)
   const [connectingSourceId, setConnectingSourceId] = useState<number | null>(null);
+  const [connectingSourceSide, setConnectingSourceSide] = useState<AnchorSide | null>(null);
   const [connectingMousePos, setConnectingMousePos] = useState<Position | null>(null);
+  const [edgeAnchors, setEdgeAnchors] = useState<Record<string, { sourceSide: AnchorSide; targetSide: AnchorSide }>>({});
 
   const isPanningRef = useRef(false);
   const panStartRef = useRef<Position>({ x: 0, y: 0 });
@@ -41,16 +63,16 @@ export function useCanvas(
   const dragStartMouseRef = useRef<Position>({ x: 0, y: 0 });
   const dragStartNodePosRef = useRef<Position>({ x: 0, y: 0 });
 
-  // Sincroniza e distribui nós no canvas
   useEffect(() => {
     setNodes((prevNodes) => {
       const prevMap = new Map(prevNodes.map((n) => [n.id, n.position]));
+      const savedPositions = getSavedPositions();
 
       const temaGroups = new Map<number, Nota[]>();
       notas.forEach((n) => {
-        const list = temaGroups.get(n.tema_id) || [];
+        const list = temaGroups.get(n.temaId) || [];
         list.push(n);
-        temaGroups.set(n.tema_id, list);
+        temaGroups.set(n.temaId, list);
       });
 
       let groupIndex = 0;
@@ -62,7 +84,8 @@ export function useCanvas(
         const color = getThemeColor(temaId);
 
         groupNotas.forEach((nota, idx) => {
-          let pos = prevMap.get(nota.id);
+          let pos = prevMap.get(nota.id) || savedPositions[nota.id];
+
           if (!pos) {
             const angle = (idx * (2 * Math.PI)) / Math.max(groupNotas.length, 1);
             const radius = groupNotas.length > 1 ? 180 : 0;
@@ -88,15 +111,14 @@ export function useCanvas(
     });
   }, [notas, selectedNodeId]);
 
-  // Converte conexões persistidas em arestas do Canvas
   const edges: CanvasEdge[] = conexoes.map((c) => ({
     id: `edge-${c.id}`,
-    sourceId: c.nota_origem_id,
-    targetId: c.nota_destino_id,
-    color: "#526D82",
+    sourceId: c.notaOrigemId,
+    targetId: c.notaDestinoId,
+    ...edgeAnchors[`pair-${c.notaOrigemId}-${c.notaDestinoId}`],
+    color: "#6C35D9",
   }));
 
-  // Pan no Canvas
   const handleCanvasMouseDown = useCallback(
     (e: React.MouseEvent) => {
       if (
@@ -107,6 +129,7 @@ export function useCanvas(
       }
       if (connectingSourceId !== null) {
         setConnectingSourceId(null);
+        setConnectingSourceSide(null);
         setConnectingMousePos(null);
         return;
       }
@@ -117,17 +140,27 @@ export function useCanvas(
     [viewport, connectingSourceId]
   );
 
-  // Arraste de Nó ou Seleção de Destino
   const handleNodeMouseDown = useCallback(
-    (e: React.MouseEvent, nodeId: number) => {
+    (e: React.MouseEvent, nodeId: number, targetSide?: AnchorSide) => {
       e.stopPropagation();
       setSelectedNodeId(nodeId);
 
       if (connectingSourceId !== null) {
-        if (connectingSourceId !== nodeId && onConnectNodes) {
-          onConnectNodes(connectingSourceId, nodeId);
+        if (connectingSourceId !== nodeId && connectingSourceSide && targetSide && onConnectNodes) {
+          setEdgeAnchors((prev) => ({
+            ...prev,
+            [`pair-${connectingSourceId}-${nodeId}`]: {
+              sourceSide: connectingSourceSide,
+              targetSide,
+            },
+          }));
+          onConnectNodes(
+            { nodeId: connectingSourceId, side: connectingSourceSide },
+            { nodeId, side: targetSide }
+          );
         }
         setConnectingSourceId(null);
+        setConnectingSourceSide(null);
         setConnectingMousePos(null);
         return;
       }
@@ -140,14 +173,14 @@ export function useCanvas(
         dragStartNodePosRef.current = { ...node.position };
       }
     },
-    [nodes, connectingSourceId, onConnectNodes]
+    [nodes, connectingSourceId, connectingSourceSide, onConnectNodes]
   );
 
-  // Iniciar criação de conexão a partir do handle
   const handleStartConnecting = useCallback(
-    (e: React.MouseEvent, sourceNodeId: number) => {
+    (e: React.MouseEvent, sourceNodeId: number, sourceSide: AnchorSide) => {
       e.stopPropagation();
       setConnectingSourceId(sourceNodeId);
+      setConnectingSourceSide(sourceSide);
       const rect = (e.currentTarget.closest(".canvas-container") || document.body).getBoundingClientRect();
       setConnectingMousePos({
         x: (e.clientX - rect.left - viewport.x) / viewport.zoom,
@@ -201,7 +234,25 @@ export function useCanvas(
 
   const handleMouseUp = useCallback(() => {
     isPanningRef.current = false;
-    draggedNodeIdRef.current = null;
+
+    if (draggedNodeIdRef.current !== null) {
+      draggedNodeIdRef.current = null;
+
+      setNodes((currentNodes) => {
+        const positionsMap: Record<number, Position> = {};
+        currentNodes.forEach((n) => {
+          positionsMap[n.id] = n.position;
+        });
+        savePositions(positionsMap);
+        return currentNodes;
+      });
+    }
+  }, []);
+
+  const handleCancelConnecting = useCallback(() => {
+    setConnectingSourceId(null);
+    setConnectingSourceSide(null);
+    setConnectingMousePos(null);
   }, []);
 
   const zoomIn = () => setViewport((v) => ({ ...v, zoom: Math.min(v.zoom + 0.15, 2.2) }));
@@ -215,12 +266,14 @@ export function useCanvas(
     selectedNodeId,
     setSelectedNodeId,
     connectingSourceId,
+    connectingSourceSide,
     connectingMousePos,
     handleCanvasMouseDown,
     handleNodeMouseDown,
     handleStartConnecting,
     handleMouseMove,
     handleMouseUp,
+    handleCancelConnecting,
     zoomIn,
     zoomOut,
     resetView,

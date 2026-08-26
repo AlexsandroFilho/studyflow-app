@@ -1,7 +1,8 @@
 import React from "react";
 import { CanvasNode } from "../../types/canvas";
+import { AnchorSide } from "../../hooks/useCanvas";
 import { Tema } from "../../types/tema";
-import { BookOpen, Edit3, Trash2, Calendar, Plus, Link2 } from "lucide-react";
+import { Sparkles, Calendar, Tag, Trash2, Edit3, ExternalLink } from "lucide-react";
 
 interface CanvasNodeCardProps {
   node: CanvasNode;
@@ -10,8 +11,9 @@ interface CanvasNodeCardProps {
   onOpenInEditor: (notaId: number) => void;
   onEditNota: (node: CanvasNode) => void;
   onDeleteNota: (node: CanvasNode) => void;
-  onCreateConnectedNote: (sourceNode: CanvasNode) => void;
-  onStartConnecting: (e: React.MouseEvent, sourceNodeId: number) => void;
+  onStartConnecting: (e: React.MouseEvent, sourceNodeId: number, sourceSide: AnchorSide) => void;
+  onFinishConnecting: (e: React.MouseEvent, targetNodeId: number, targetSide: AnchorSide) => void;
+  isConnecting?: boolean;
   isConnectingSource?: boolean;
 }
 
@@ -22,139 +24,177 @@ export const CanvasNodeCard: React.FC<CanvasNodeCardProps> = ({
   onOpenInEditor,
   onEditNota,
   onDeleteNota,
-  onCreateConnectedNote,
   onStartConnecting,
-  isConnectingSource = false,
+  onFinishConnecting,
+  isConnecting,
+  isConnectingSource,
 }) => {
-  const tema = temas.find((t) => t.id === node.data.temaId);
+  const { data, position, color, isSelected } = node;
+  const tema = temas.find((t) => t.id === data.temaId);
 
   const formatDate = (dateStr?: string | null) => {
-    if (!dateStr) return "";
+    if (!dateStr) return "-";
     try {
       return new Date(dateStr).toLocaleDateString("pt-BR", {
         day: "2-digit",
         month: "short",
       });
     } catch {
-      return "";
+      return dateStr;
     }
   };
 
-  const themeColor = node.color || "#526D82";
+  const truncateText = (text: string, maxLength: number) => {
+    if (!text) return "";
+    return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+  };
 
   return (
     <div
+      className="absolute group"
       style={{
-        transform: `translate(${node.position.x}px, ${node.position.y}px)`,
-        outline: node.isSelected || isConnectingSource ? "2px solid #9DB2BF" : "none",
-        outlineOffset: "2px",
-        boxShadow: node.isSelected
-          ? "0 8px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px #9DB2BF"
-          : "0 4px 14px rgba(0, 0, 0, 0.35)",
+        transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
+        width: "288px",
+        height: "160px",
       }}
       onMouseDown={(e) => onMouseDown(e, node.id)}
       onDoubleClick={(e) => {
         e.stopPropagation();
         onOpenInEditor(node.id);
       }}
-      className={`absolute w-72 rounded-xl bg-[#27374D] border ${
-        node.isSelected ? "border-[#9DB2BF]" : "border-[#526D82]"
-      } p-5 cursor-grab active:cursor-grabbing transition-colors duration-150 select-none group z-10 hover:border-[#9DB2BF]`}
     >
-      {/* Botão de Criação de Nota Conectada (+) na lateral direita */}
       <button
+        type="button"
+        title="Conectar (Topo)"
+        onMouseDown={(e) => e.stopPropagation()}
         onClick={(e) => {
-          e.stopPropagation();
-          onCreateConnectedNote(node);
+          if (isConnecting) {
+            onFinishConnecting(e, node.id, "top");
+          } else {
+            onStartConnecting(e, node.id, "top");
+          }
         }}
-        className="absolute -right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-[#526D82] hover:bg-[#9DB2BF] text-[#DDE6ED] hover:text-[#161B22] border-2 border-[#161B22] flex items-center justify-center shadow-md transition-all transform hover:scale-110 z-20"
-        title="Criar nova nota conectada a esta"
+        className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#8B5CF6] border-2 border-[#0F0E17] opacity-0 group-hover:opacity-100 hover:scale-125 transition-all z-30 cursor-crosshair"
+      />
+      <button
+        type="button"
+        title="Conectar (Base)"
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          if (isConnecting) {
+            onFinishConnecting(e, node.id, "bottom");
+          } else {
+            onStartConnecting(e, node.id, "bottom");
+          }
+        }}
+        className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#8B5CF6] border-2 border-[#0F0E17] opacity-0 group-hover:opacity-100 hover:scale-125 transition-all z-30 cursor-crosshair"
+      />
+      <button
+        type="button"
+        title="Conectar (Esquerda)"
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          if (isConnecting) {
+            onFinishConnecting(e, node.id, "left");
+          } else {
+            onStartConnecting(e, node.id, "left");
+          }
+        }}
+        className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-[#8B5CF6] border-2 border-[#0F0E17] opacity-0 group-hover:opacity-100 hover:scale-125 transition-all z-30 cursor-crosshair"
+      />
+      <button
+        type="button"
+        title="Conectar (Direita)"
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          if (isConnecting) {
+            onFinishConnecting(e, node.id, "right");
+          } else {
+            onStartConnecting(e, node.id, "right");
+          }
+        }}
+        className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-[#8B5CF6] border-2 border-[#0F0E17] opacity-0 group-hover:opacity-100 hover:scale-125 transition-all z-30 cursor-crosshair"
+      />
+
+      <div
+        className={`w-full h-full rounded-xl border p-3.5 flex flex-col justify-between transition-all duration-150 cursor-grab active:cursor-grabbing shadow-xl shadow-purple-950/20 relative ${
+          isSelected
+            ? "bg-[#27374D] border-[#9DB2BF] ring-2 ring-[#9DB2BF]/30 shadow-2xl scale-[1.02]"
+            : isConnectingSource
+            ? "bg-[#27374D] border-[#9DB2BF] ring-2 ring-emerald-500/50"
+            : "bg-[#1C2430]/95 border-[#526D82]/40 hover:border-[#526D82]"
+        }`}
+        style={{
+          borderTopWidth: "4px",
+          borderTopColor: color,
+        }}
       >
-        <Plus className="w-4 h-4 font-bold" />
-      </button>
+        <div>
+          <div className="flex items-start justify-between gap-2 mb-1.5">
+            <h3 className="font-semibold text-sm text-[#DDE6ED] leading-snug line-clamp-1 flex-1">
+              {data.titulo || "Sem título"}
+            </h3>
 
-      {/* Tag do Tema & Ações Rápidas */}
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <span
-          className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider"
-          style={{
-            backgroundColor: `${themeColor}33`,
-            color: "#DDE6ED",
-            border: `1px solid ${themeColor}88`,
-          }}
-        >
-          <span
-            className="w-1.5 h-1.5 rounded-full shrink-0"
-            style={{ backgroundColor: themeColor }}
-          />
-          {tema?.nome || `Tema #${node.data.temaId}`}
-        </span>
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenInEditor(node.id);
+                }}
+                className="p-1 rounded text-[#9DB2BF] hover:text-white hover:bg-[#526D82]/50 transition-colors"
+                title="Abrir no Editor"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditNota(node);
+                }}
+                className="p-1 rounded text-[#9DB2BF] hover:text-white hover:bg-[#526D82]/50 transition-colors"
+                title="Editar"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteNota(node);
+                }}
+                className="p-1 rounded text-[#9DB2BF] hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                title="Excluir"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
 
-        {/* Ações rápidas no Hover */}
-        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-          {/* Ligar a outra nota */}
-          <button
-            onClick={(e) => onStartConnecting(e, node.id)}
-            className="p-1.5 rounded-md text-[#9DB2BF] hover:text-[#DDE6ED] hover:bg-[#526D82]/50 transition-colors"
-            title="Ligar a outra nota"
-          >
-            <Link2 className="w-3.5 h-3.5" />
-          </button>
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpenInEditor(node.id);
-            }}
-            className="p-1.5 rounded-md text-[#9DB2BF] hover:text-[#DDE6ED] hover:bg-[#526D82]/50 transition-colors"
-            title="Abrir em Modo Foco"
-          >
-            <BookOpen className="w-3.5 h-3.5" />
-          </button>
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEditNota(node);
-            }}
-            className="p-1.5 rounded-md text-[#9DB2BF] hover:text-[#DDE6ED] hover:bg-[#526D82]/50 transition-colors"
-            title="Editar Nota"
-          >
-            <Edit3 className="w-3.5 h-3.5" />
-          </button>
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDeleteNota(node);
-            }}
-            className="p-1.5 rounded-md text-[#9DB2BF] hover:text-red-400 hover:bg-red-950/40 transition-colors"
-            title="Excluir Nota"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          <p className="text-xs text-[#9DB2BF] line-clamp-2 leading-relaxed">
+            {truncateText(data.conteudo || "Nenhum conteúdo adicionado.", 80)}
+          </p>
         </div>
-      </div>
 
-      {/* Título */}
-      <h4 className="text-sm font-bold text-[#DDE6ED] leading-snug mb-2 line-clamp-1 group-hover:text-white transition-colors">
-        {node.data.titulo}
-      </h4>
+        <div className="flex items-center justify-between text-[11px] text-[#526D82] pt-2 border-t border-[#526D82]/20 mt-auto">
+          <div className="flex items-center gap-1 max-w-[60%]">
+            <Tag className="w-3 h-3 shrink-0" style={{ color }} />
+            <span className="truncate text-[#9DB2BF]">{tema?.nome || "Geral"}</span>
+          </div>
 
-      {/* Snippet de Conteúdo */}
-      <p className="text-xs text-[#9DB2BF] line-clamp-3 leading-relaxed mb-4">
-        {node.data.conteudo}
-      </p>
-
-      {/* Rodapé */}
-      <div className="flex items-center justify-between pt-3 border-t border-[#526D82]/50 text-[11px] text-[#9DB2BF]">
-        <div className="flex items-center gap-1">
-          <Calendar className="w-3 h-3 text-[#9DB2BF]" />
-          <span>{formatDate(node.data.dataCriacao) || "—"}</span>
+          <div className="flex items-center gap-2">
+            {data.resumoIa && (
+              <span title="Resumo de IA Gerado">
+                <Sparkles className="w-3 h-3 text-amber-400" />
+              </span>
+            )}
+            <div className="flex items-center gap-1">
+              <Calendar className="w-3 h-3" />
+              <span>{formatDate(data.dataAtualizacao || data.dataCriacao)}</span>
+            </div>
+          </div>
         </div>
-        <span className="opacity-0 group-hover:opacity-75 transition-opacity text-[10px]">
-          2× para abrir
-        </span>
       </div>
     </div>
   );

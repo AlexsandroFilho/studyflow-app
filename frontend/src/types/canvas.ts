@@ -17,6 +17,8 @@ export interface CanvasEdge {
   id: string;
   sourceId: number;
   targetId: number;
+  sourceSide?: "top" | "right" | "bottom" | "left";
+  targetSide?: "top" | "right" | "bottom" | "left";
   color?: string;
 }
 

@@ -7,28 +7,23 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Paleta Steel Blue & Graphite Grey
-        background: "#161B22",
-        surface: "#1C2430",
-        "surface-raised": "#27374D",
-        "surface-hover": "#31435D",
-        border: "#526D82",
-        "border-subtle": "#374A5E",
-
-        // Textos
+        background: "#0F0E17",
+        surface: "#161426",
+        "surface-raised": "#1A182B",
+        "surface-hover": "#2E2A4A",
+        border: "#2E2A4A",
+        "border-subtle": "#26223A",
         text: {
-          primary: "#DDE6ED",
-          secondary: "#9DB2BF",
-          muted: "#7B93A4",
+          primary: "#F8FAFC",
+          secondary: "#94A3B8",
+          muted: "#64748B",
         },
-
-        // Acentos e Botões
         accent: {
-          DEFAULT: "#526D82",
-          hover: "#9DB2BF",
-          light: "#DDE6ED",
-          dark: "#27374D",
-          highlight: "#9DB2BF",
+          DEFAULT: "#7C3AED",
+          hover: "#6D28D9",
+          light: "#8B5CF6",
+          dark: "#0F0E17",
+          highlight: "#8B5CF6",
         },
       },
       fontFamily: {

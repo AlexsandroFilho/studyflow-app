@@ -2,8 +2,6 @@ import { api } from './api';
 import {
   Conexao,
   ConexaoRequestDto,
-  NotaConectadaRequestDto,
-  NotaConectadaResponseDto,
 } from '../types/conexao';
 
 export const conexaoService = {
@@ -16,11 +14,6 @@ export const conexaoService = {
 
   async conectar(dto: ConexaoRequestDto): Promise<Conexao> {
     const response = await api.post<Conexao>('/conexoes', dto);
-    return response.data;
-  },
-
-  async criarNotaConectada(dto: NotaConectadaRequestDto): Promise<NotaConectadaResponseDto> {
-    const response = await api.post<NotaConectadaResponseDto>('/conexoes/nota-conectada', dto);
     return response.data;
   },
 

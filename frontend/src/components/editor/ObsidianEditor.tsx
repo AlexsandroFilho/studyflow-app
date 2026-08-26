@@ -9,7 +9,7 @@ import { Bold, Italic, List, Heading, Quote, Code } from "lucide-react";
 interface ObsidianEditorProps {
   nota: Nota;
   temas: Tema[];
-  onUpdateNota: (id: number, dto: NotaUpdateDto) => Promise<Nota>;
+  onUpdateNota: (id: number, dto: NotaUpdateDto) => Promise<void>;
   onDeleteNota: (nota: Nota) => void;
   onBackToCanvas: () => void;
 }

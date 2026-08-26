@@ -1,5 +1,6 @@
 import React from "react";
 import { CanvasNode, CanvasEdge, CanvasViewport, Position } from "../../types/canvas";
+import { AnchorSide } from "../../hooks/useCanvas";
 import { Tema } from "../../types/tema";
 import { CanvasNodeCard } from "./CanvasNodeCard";
 import { CanvasControls } from "./CanvasControls";
@@ -12,16 +13,17 @@ interface CanvasBoardProps {
   temas: Tema[];
   viewport: CanvasViewport;
   connectingSourceId: number | null;
+  connectingSourceSide: AnchorSide | null;
   connectingMousePos: Position | null;
   onCanvasMouseDown: (e: React.MouseEvent) => void;
   onNodeMouseDown: (e: React.MouseEvent, nodeId: number) => void;
-  onStartConnecting: (e: React.MouseEvent, sourceNodeId: number) => void;
+  onStartConnecting: (e: React.MouseEvent, sourceNodeId: number, sourceSide: AnchorSide) => void;
   onMouseMove: (e: React.MouseEvent) => void;
   onMouseUp: () => void;
   onOpenInEditor: (notaId: number) => void;
   onEditNota: (node: CanvasNode) => void;
   onDeleteNota: (node: CanvasNode) => void;
-  onCreateConnectedNote: (sourceNode: CanvasNode) => void;
+  onFinishConnecting: (e: React.MouseEvent, targetNodeId: number, targetSide: AnchorSide) => void;
   onDeleteEdge?: (edge: CanvasEdge) => void;
   onZoomIn: () => void;
   onZoomOut: () => void;
@@ -31,12 +33,46 @@ interface CanvasBoardProps {
   onCancelConnecting?: () => void;
 }
 
+const CARD_WIDTH = 288;
+const CARD_HEIGHT = 160;
+
+const getAnchorPoint = (node: CanvasNode, side: AnchorSide) => {
+  if (side === "top") return { x: node.position.x + CARD_WIDTH / 2, y: node.position.y };
+  if (side === "right") return { x: node.position.x + CARD_WIDTH, y: node.position.y + CARD_HEIGHT / 2 };
+  if (side === "bottom") return { x: node.position.x + CARD_WIDTH / 2, y: node.position.y + CARD_HEIGHT };
+  return { x: node.position.x, y: node.position.y + CARD_HEIGHT / 2 };
+};
+
+const getClosestAnchor = (source: CanvasNode, target: CanvasNode) => {
+  const sCenter = { x: source.position.x + CARD_WIDTH / 2, y: source.position.y + CARD_HEIGHT / 2 };
+  const tCenter = { x: target.position.x + CARD_WIDTH / 2, y: target.position.y + CARD_HEIGHT / 2 };
+
+  const dx = tCenter.x - sCenter.x;
+  const dy = tCenter.y - sCenter.y;
+
+  let x1 = source.position.x + CARD_WIDTH / 2;
+  let y1 = source.position.y + CARD_HEIGHT / 2;
+  let x2 = target.position.x + CARD_WIDTH / 2;
+  let y2 = target.position.y + CARD_HEIGHT / 2;
+
+  if (Math.abs(dx) > Math.abs(dy)) {
+    x1 = dx > 0 ? source.position.x + CARD_WIDTH : source.position.x;
+    x2 = dx > 0 ? target.position.x : target.position.x + CARD_WIDTH;
+  } else {
+    y1 = dy > 0 ? source.position.y + CARD_HEIGHT : source.position.y;
+    y2 = dy > 0 ? target.position.y : target.position.y + CARD_HEIGHT;
+  }
+
+  return { x1, y1, x2, y2 };
+};
+
 export const CanvasBoard: React.FC<CanvasBoardProps> = ({
   nodes,
   edges,
   temas,
   viewport,
   connectingSourceId,
+  connectingSourceSide,
   connectingMousePos,
   onCanvasMouseDown,
   onNodeMouseDown,
@@ -46,7 +82,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
   onOpenInEditor,
   onEditNota,
   onDeleteNota,
-  onCreateConnectedNote,
+  onFinishConnecting,
   onDeleteEdge,
   onZoomIn,
   onZoomOut,
@@ -57,11 +93,32 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
 }) => {
   const nodeMap = new Map<number, CanvasNode>(nodes.map((n) => [n.id, n]));
 
-  // Curva de Bézier suave entre os nós
-  const calculateCurvePath = (x1: number, y1: number, x2: number, y2: number) => {
-    const dx = Math.abs(x2 - x1) * 0.45;
-    const dy = (y2 - y1) * 0.45;
-    return `M ${x1} ${y1} C ${x1 + dx} ${y1 + dy}, ${x2 - dx} ${y2 - dy}, ${x2} ${y2}`;
+  const calculateCurvePath = (
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    sourceSide?: AnchorSide,
+    targetSide?: AnchorSide
+  ) => {
+    const distance = Math.max(60, Math.min(180, Math.hypot(x2 - x1, y2 - y1) * 0.45));
+    const sourceVector = sourceSide === "top"
+      ? { x: 0, y: -1 }
+      : sourceSide === "right"
+      ? { x: 1, y: 0 }
+      : sourceSide === "bottom"
+      ? { x: 0, y: 1 }
+      : { x: -1, y: 0 };
+    const targetVector = targetSide === "top"
+      ? { x: 0, y: -1 }
+      : targetSide === "right"
+      ? { x: 1, y: 0 }
+      : targetSide === "bottom"
+      ? { x: 0, y: 1 }
+      : { x: -1, y: 0 };
+    const control1 = { x: x1 + sourceVector.x * distance, y: y1 + sourceVector.y * distance };
+    const control2 = { x: x2 + targetVector.x * distance, y: y2 + targetVector.y * distance };
+    return `M ${x1} ${y1} C ${control1.x} ${control1.y}, ${control2.x} ${control2.y}, ${x2} ${y2}`;
   };
 
   const handleDoubleClick = (e: React.MouseEvent) => {
@@ -82,30 +139,27 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
 
   return (
     <div
-      className="canvas-container relative flex-1 h-full w-full overflow-hidden bg-[#161B22] select-none cursor-default"
+      className="canvas-container relative flex-1 h-full w-full overflow-hidden select-none cursor-default"
       onMouseDown={onCanvasMouseDown}
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
       onDoubleClick={handleDoubleClick}
     >
-      {/* Grade de pontos suave (#2D3748) */}
       <div
         className="absolute inset-0 pointer-events-none canvas-bg"
         style={{
-          backgroundImage: "radial-gradient(circle, #2D3748 1.2px, transparent 1.2px)",
+          backgroundImage: "radial-gradient(circle, rgba(139, 92, 246, 0.18) 1.2px, transparent 1.2px)",
           backgroundSize: `${32 * viewport.zoom}px ${32 * viewport.zoom}px`,
           backgroundPosition: `${viewport.x}px ${viewport.y}px`,
         }}
       />
 
-      {/* Camada transformável com Pan & Zoom */}
       <div
         className="absolute inset-0 origin-top-left canvas-bg"
         style={{
           transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
         }}
       >
-        {/* SVG de Conexões Persistidas */}
         <svg className="absolute inset-0 w-[50000px] h-[50000px] pointer-events-none overflow-visible">
           <defs>
             <marker
@@ -116,28 +170,29 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
               refY="3"
               orient="auto"
             >
-              <polygon points="0 0, 8 3, 0 6" fill="#9DB2BF" />
+              <polygon points="0 0, 8 3, 0 6" fill="#5120B5" />
             </marker>
           </defs>
 
-          {/* Arestas Fixas */}
+          {/* Conexões com Ancoragem Dinâmica Inteligente */}
           {edges.map((edge) => {
             const source = nodeMap.get(edge.sourceId);
             const target = nodeMap.get(edge.targetId);
             if (!source || !target) return null;
 
-            const cw = 288;
-            const ch = 150;
-            const x1 = source.position.x + cw;
-            const y1 = source.position.y + ch / 2;
-            const x2 = target.position.x;
-            const y2 = target.position.y + ch / 2;
-
-            const path = calculateCurvePath(x1, y1, x2, y2);
+            const closest = getClosestAnchor(source, target);
+            const sourcePoint = edge.sourceSide ? getAnchorPoint(source, edge.sourceSide) : { x: closest.x1, y: closest.y1 };
+            const targetPoint = edge.targetSide ? getAnchorPoint(target, edge.targetSide) : { x: closest.x2, y: closest.y2 };
+            const { x1, y1, x2, y2 } = {
+              x1: sourcePoint.x,
+              y1: sourcePoint.y,
+              x2: targetPoint.x,
+              y2: targetPoint.y,
+            };
+            const path = calculateCurvePath(x1, y1, x2, y2, edge.sourceSide, edge.targetSide);
 
             return (
               <g key={edge.id} className="group/edge pointer-events-auto cursor-pointer">
-                {/* Linha invisível para clique facilitado */}
                 <path
                   d={path}
                   fill="none"
@@ -145,11 +200,10 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
                   strokeWidth="20"
                   onClick={() => onDeleteEdge && onDeleteEdge(edge)}
                 />
-                {/* Linha de conexão visível em #526D82 com ponta em #9DB2BF */}
                 <path
                   d={path}
                   fill="none"
-                  stroke="#526D82"
+                  stroke="#8B5CF6"
                   strokeWidth="2"
                   strokeOpacity="0.85"
                   strokeLinecap="round"
@@ -161,17 +215,17 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
             );
           })}
 
-          {/* Linha Elástica durante criação de conexão */}
           {connectingSourceNode && connectingMousePos && (
             <path
               d={calculateCurvePath(
-                connectingSourceNode.position.x + 288,
-                connectingSourceNode.position.y + 75,
+                getAnchorPoint(connectingSourceNode, connectingSourceSide || "right").x,
+                getAnchorPoint(connectingSourceNode, connectingSourceSide || "right").y,
                 connectingMousePos.x,
-                connectingMousePos.y
+                connectingMousePos.y,
+                connectingSourceSide || undefined
               )}
               fill="none"
-              stroke="#9DB2BF"
+              stroke="#8B5CF6"
               strokeWidth="2.5"
               strokeDasharray="6 4"
               strokeLinecap="round"
@@ -179,7 +233,6 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
           )}
         </svg>
 
-        {/* Cartões de Nós (#27374D) */}
         {nodes.map((node) => (
           <CanvasNodeCard
             key={node.id}
@@ -189,21 +242,21 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
             onOpenInEditor={onOpenInEditor}
             onEditNota={onEditNota}
             onDeleteNota={onDeleteNota}
-            onCreateConnectedNote={onCreateConnectedNote}
             onStartConnecting={onStartConnecting}
+            onFinishConnecting={onFinishConnecting}
+            isConnecting={connectingSourceId !== null}
             isConnectingSource={connectingSourceId === node.id}
           />
         ))}
       </div>
 
-      {/* Estado Vazio */}
       {nodes.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="pointer-events-auto">
             <EmptyState
               icon={<Network className="w-8 h-8" />}
               title="Seu Mapa Mental está vazio"
-              description="Crie sua primeira nota e utilize o botão '+' nos cartões para expandir conexões no grafo de estudos."
+              description="Crie sua primeira nota e utilize os pontos nos cartões para conectar notas existentes."
               actionLabel="Criar Primeira Nota"
               onAction={onOpenCreateNota}
             />
@@ -211,7 +264,6 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
         </div>
       )}
 
-      {/* Banner de Modo de Conexão ou Dica Padrão */}
       <div className="absolute top-4 left-5 z-20">
         {connectingSourceId ? (
           <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-lg bg-[#27374D] border border-[#9DB2BF] text-xs text-[#DDE6ED] shadow-xl animate-pulse">
@@ -228,12 +280,11 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
         ) : (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1C2430]/90 border border-[#526D82]/50 text-[11px] text-[#9DB2BF] shadow-md backdrop-blur-sm">
             <MousePointer2 className="w-3.5 h-3.5 shrink-0 text-[#9DB2BF]" />
-            <span>Arraste o fundo para navegar · Use o '+' no card para criar conectada</span>
+            <span>Arraste o fundo para navegar · Use os pontos do card para conectar notas</span>
           </div>
         )}
       </div>
 
-      {/* Controles de Zoom e Nova Nota */}
       <CanvasControls
         zoom={viewport.zoom}
         onZoomIn={onZoomIn}

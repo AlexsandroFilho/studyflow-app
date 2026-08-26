@@ -60,6 +60,8 @@ export function useNotas(selectedTemaId: number | null) {
     }
   };
 
+  const atualizarParcialNota = atualizarNota;
+
   const deletarNota = async (id: number): Promise<void> => {
     setError(null);
     try {
@@ -84,6 +86,7 @@ export function useNotas(selectedTemaId: number | null) {
     carregarNotas,
     criarNota,
     atualizarNota,
+    atualizarParcialNota,
     deletarNota,
   };
 }

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { Conexao, ConexaoRequestDto, NotaConectadaRequestDto } from "../types/conexao";
+import { Conexao, ConexaoRequestDto } from "../types/conexao";
 import { conexaoService } from "../services/conexaoService";
-import { Nota } from "../types/nota";
 
 export function useConexoes(selectedTemaId: number | null) {
   const [conexoes, setConexoes] = useState<Conexao[]>([]);
@@ -40,20 +39,6 @@ export function useConexoes(selectedTemaId: number | null) {
     }
   };
 
-  const criarNotaConectada = async (
-    dto: NotaConectadaRequestDto
-  ): Promise<{ nota: Nota; conexao: Conexao }> => {
-    setError(null);
-    try {
-      const result = await conexaoService.criarNotaConectada(dto);
-      setConexoes((prev) => [...prev, result.conexao]);
-      return result;
-    } catch (err: any) {
-      setError(err.message || "Erro ao criar nota conectada.");
-      throw err;
-    }
-  };
-
   const desconectarPorId = async (conexaoId: number): Promise<void> => {
     setError(null);
     try {
@@ -73,8 +58,8 @@ export function useConexoes(selectedTemaId: number | null) {
         prev.filter(
           (c) =>
             !(
-              (c.nota_origem_id === origemId && c.nota_destino_id === destinoId) ||
-              (c.nota_origem_id === destinoId && c.nota_destino_id === origemId)
+              (c.notaOrigemId === origemId && c.notaDestinoId === destinoId) ||
+              (c.notaOrigemId === destinoId && c.notaDestinoId === origemId)
             )
         )
       );
@@ -90,7 +75,6 @@ export function useConexoes(selectedTemaId: number | null) {
     error,
     carregarConexoes,
     conectar,
-    criarNotaConectada,
     desconectarPorId,
     desconectarPorPar,
   };

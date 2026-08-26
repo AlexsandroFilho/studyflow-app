@@ -19,14 +19,11 @@ export function App() {
   const [viewMode, setViewMode] = useState<ViewMode>("canvas");
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  // Modais
   const [isNotaModalOpen, setIsNotaModalOpen] = useState(false);
   const [isTemaModalOpen, setIsTemaModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  // Estados de edição / deleção / conexão
   const [editingNota, setEditingNota] = useState<Nota | null>(null);
-  const [connectedSourceNota, setConnectedSourceNota] = useState<Nota | null>(null);
   const [editingTema, setEditingTema] = useState<Tema | null>(null);
   const [itemToDelete, setItemToDelete] = useState<{
     type: "tema" | "nota" | "conexao";
@@ -34,7 +31,6 @@ export function App() {
     title: string;
   } | null>(null);
 
-  // Custom Hooks
   const {
     temas,
     selectedTemaId,
@@ -50,7 +46,6 @@ export function App() {
     activeNota,
     setActiveNota,
     loading: loadingNotas,
-    carregarNotas,
     criarNota,
     atualizarNota,
     atualizarParcialNota,
@@ -61,11 +56,9 @@ export function App() {
     conexoes,
     carregarConexoes,
     conectar,
-    criarNotaConectada,
     desconectarPorId,
   } = useConexoes(selectedTemaId);
 
-  // Filtro de busca
   const filteredNotas = useMemo(() => {
     if (!searchTerm.trim()) return notas;
     const term = searchTerm.toLowerCase();
@@ -76,33 +69,33 @@ export function App() {
     );
   }, [notas, searchTerm]);
 
-  // Hook do Canvas
   const {
     nodes,
     edges,
     viewport,
     connectingSourceId,
+    connectingSourceSide,
     connectingMousePos,
     handleCanvasMouseDown,
     handleNodeMouseDown,
     handleStartConnecting,
     handleMouseMove,
     handleMouseUp,
+    handleCancelConnecting,
     zoomIn,
     zoomOut,
     resetView,
-  } = useCanvas(filteredNotas, conexoes, async (sourceId, targetId) => {
+  } = useCanvas(filteredNotas, conexoes, async (source, target) => {
     try {
       await conectar({
-        nota_origem_id: sourceId,
-        nota_destino_id: targetId,
+        notaOrigemId: source.nodeId,
+        notaDestinoId: target.nodeId,
       });
     } catch (err: any) {
       console.error(err);
     }
   });
 
-  // Handlers para Navegação e Ações
   const handleOpenInEditor = (notaId: number) => {
     const nota = notas.find((n) => n.id === notaId);
     if (nota) {
@@ -113,13 +106,6 @@ export function App() {
 
   const handleEditNotaFromCanvas = (node: CanvasNode) => {
     setEditingNota(node.data);
-    setConnectedSourceNota(null);
-    setIsNotaModalOpen(true);
-  };
-
-  const handleCreateConnectedNote = (sourceNode: CanvasNode) => {
-    setEditingNota(null);
-    setConnectedSourceNota(sourceNode.data);
     setIsNotaModalOpen(true);
   };
 
@@ -170,13 +156,11 @@ export function App() {
 
   return (
     <div className="flex flex-col h-screen w-screen bg-[#161B22] text-[#DDE6ED] overflow-hidden font-sans select-none">
-      {/* Header Global */}
       <Header
         viewMode={viewMode}
         setViewMode={setViewMode}
         onOpenCreateNota={() => {
           setEditingNota(null);
-          setConnectedSourceNota(null);
           setIsNotaModalOpen(true);
         }}
         onOpenCreateTema={() => {
@@ -188,9 +172,7 @@ export function App() {
         totalConexoes={conexoes.length}
       />
 
-      {/* Corpo Principal (Sidebar + Canvas / Editor) */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar Esquerda */}
         <Sidebar
           temas={temas}
           notas={notas}
@@ -209,7 +191,6 @@ export function App() {
           onSearchChange={setSearchTerm}
         />
 
-        {/* Área de Trabalho */}
         <main className="flex-1 flex relative overflow-hidden bg-[#161B22]">
           {loadingTemas || loadingNotas ? (
             <div className="flex-1 flex items-center justify-center bg-[#161B22]">
@@ -222,6 +203,7 @@ export function App() {
               temas={temas}
               viewport={viewport}
               connectingSourceId={connectingSourceId}
+              connectingSourceSide={connectingSourceSide}
               connectingMousePos={connectingMousePos}
               onCanvasMouseDown={handleCanvasMouseDown}
               onNodeMouseDown={handleNodeMouseDown}
@@ -231,14 +213,14 @@ export function App() {
               onOpenInEditor={handleOpenInEditor}
               onEditNota={handleEditNotaFromCanvas}
               onDeleteNota={handleDeleteNotaPrompt}
-              onCreateConnectedNote={handleCreateConnectedNote}
+              onFinishConnecting={handleNodeMouseDown}
               onDeleteEdge={handleDeleteEdgePrompt}
               onZoomIn={zoomIn}
               onZoomOut={zoomOut}
               onResetView={resetView}
+              onCancelConnecting={handleCancelConnecting}
               onOpenCreateNota={() => {
                 setEditingNota(null);
-                setConnectedSourceNota(null);
                 setIsNotaModalOpen(true);
               }}
             />
@@ -258,26 +240,19 @@ export function App() {
         </main>
       </div>
 
-      {/* Modais */}
       <CreateNotaModal
         isOpen={isNotaModalOpen}
         onClose={() => {
           setIsNotaModalOpen(false);
-          setConnectedSourceNota(null);
         }}
         temas={temas}
         selectedTemaId={selectedTemaId}
         editingNota={editingNota}
-        connectedSourceNota={connectedSourceNota}
         onSubmitCreate={async (dto) => {
           await criarNota(dto);
         }}
         onSubmitUpdate={async (id, dto) => {
           await atualizarNota(id, dto);
-        }}
-        onSubmitCreateConnected={async (dto) => {
-          await criarNotaConectada(dto);
-          await carregarNotas();
         }}
       />
 

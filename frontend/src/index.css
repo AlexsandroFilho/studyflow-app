@@ -2,37 +2,68 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --sf-ink: #0F0E17;
+  --sf-green: #161426;
+  --sf-yellow: #8B5CF6;
+  --sf-orange: #7C3AED;
+  --sf-text: #F8FAFC;
+  --sf-canvas: #0F0E17;
+  --sf-accent-dark: #6D28D9;
+  --sf-muted: #94A3B8;
+}
+
 @layer base {
   html, body, #root {
     height: 100%;
   }
 
   body {
-    @apply bg-[#161B22] text-[#DDE6ED] antialiased;
+    background: var(--sf-ink);
+    color: var(--sf-text);
+    @apply antialiased;
     font-family: 'Inter', sans-serif;
   }
 
   ::selection {
-    background-color: rgba(157, 178, 191, 0.35);
-    color: #DDE6ED;
+    background-color: rgba(139, 92, 246, 0.22);
+    color: var(--sf-text);
   }
 }
 
-/* Custom Scrollbar — Steel Blue / Graphite */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #161B22;
+  background: var(--sf-ink);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #526D82;
+  background: var(--sf-orange);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9DB2BF;
+  background: var(--sf-accent-dark);
 }
+
+[class*="bg-[#161B22]"] { background-color: var(--sf-ink) !important; }
+[class*="bg-[#1C2430]"] { background-color: var(--sf-green) !important; }
+[class*="bg-[#27374D]"] { background-color: #1A182B !important; }
+[class*="bg-[#31435D]"]:hover { background-color: #2E2A4A !important; }
+[class*="bg-[#526D82]"] { background-color: var(--sf-orange) !important; }
+[class*="hover:bg-[#526D82]"]:hover { background-color: var(--sf-accent-dark) !important; }
+[class*="hover:bg-[#9DB2BF]"]:hover { background-color: var(--sf-accent-dark) !important; }
+[class*="text-[#DDE6ED]"] { color: var(--sf-text) !important; }
+[class*="text-[#9DB2BF]"] { color: var(--sf-muted) !important; }
+[class*="text-[#526D82]"] { color: var(--sf-muted) !important; }
+[class*="hover:text-[#DDE6ED]"]:hover { color: var(--sf-text) !important; }
+[class*="hover:text-[#161B22]"]:hover { color: #FFFFFF !important; }
+[class*="hover:text-white"]:hover { color: #FFFFFF !important; }
+[class*="border-[#526D82]"] { border-color: #2E2A4A !important; }
+[class*="border-[#9DB2BF]"] { border-color: #8B5CF6 !important; }
+[class*="ring-[#9DB2BF]"] { --tw-ring-color: rgba(124, 58, 237, 0.35) !important; }
+[class*="placeholder-[#526D82]"]::placeholder { color: #64748B !important; }
+.canvas-container { background-color: var(--sf-canvas) !important; }

@@ -5,6 +5,7 @@ export interface Nota {
   conteudo: string;
   resumoIa?: string | null;
   dataCriacao?: string | null;
+  dataAtualizacao?: string | null;
   nomeTema?: string | null;
 }
 
