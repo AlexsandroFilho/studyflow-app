@@ -8,6 +8,20 @@ export interface MarkdownBlock {
   key: number;
 }
 
+export function toPlainMarkdown(text: string): string {
+  return text
+    .replace(/^#{1,6}\s*/gm, "")
+    .replace(/^>\s?/gm, "")
+    .replace(/^\s*[-*+]\s+/gm, "")
+    .replace(/^\s*\d+\.\s+/gm, "")
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/(```|~~~)[\s\S]*?\1/g, "")
+    .replace(/[*_~`]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 const INLINE_PATTERN =
   /`([^`]+)`|\*\*\*([^*]+)\*\*\*|\*\*([^*]+)\*\*|\*([^*]+)\*/g;
 

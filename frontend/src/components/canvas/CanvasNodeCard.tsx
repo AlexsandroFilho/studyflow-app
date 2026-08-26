@@ -3,6 +3,7 @@ import { CanvasNode } from "../../types/canvas";
 import { AnchorSide } from "../../hooks/useCanvas";
 import { Tema } from "../../types/tema";
 import { Sparkles, Calendar, Tag, Trash2, Edit3, ExternalLink } from "lucide-react";
+import { toPlainMarkdown } from "../../utils/markdown";
 
 interface CanvasNodeCardProps {
   node: CanvasNode;
@@ -48,6 +49,11 @@ export const CanvasNodeCard: React.FC<CanvasNodeCardProps> = ({
     if (!text) return "";
     return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
   };
+
+  const contentPreview = truncateText(
+    toPlainMarkdown(data.conteudo || "Nenhum conteúdo adicionado."),
+    80
+  );
 
   return (
     <div
@@ -173,7 +179,7 @@ export const CanvasNodeCard: React.FC<CanvasNodeCardProps> = ({
           </div>
 
           <p className="text-xs text-[#9DB2BF] line-clamp-2 leading-relaxed">
-            {truncateText(data.conteudo || "Nenhum conteúdo adicionado.", 80)}
+            {contentPreview}
           </p>
         </div>
 

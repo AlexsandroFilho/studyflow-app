@@ -10,6 +10,7 @@ namespace StudyFlow.Api.DTOs
     public record UpdateNotaDto(
         string Titulo,
         string Conteudo,
+        int TemaId,
         string? ResumoIa = null
     );
 

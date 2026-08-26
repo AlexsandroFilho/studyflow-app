@@ -47,9 +47,12 @@ export function useNotas(selectedTemaId: number | null) {
     setError(null);
     try {
       await notaService.atualizar(id, dto);
-      setNotas((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, ...dto } : n))
-      );
+      setNotas((prev) => {
+        const updated = prev.map((n) => (n.id === id ? { ...n, ...dto } : n));
+        return selectedTemaId && dto.temaId !== selectedTemaId
+          ? updated.filter((n) => n.id !== id)
+          : updated;
+      });
       if (activeNota && activeNota.id === id) {
         setActiveNota((prev) => (prev ? { ...prev, ...dto } : null));
       }

@@ -39,6 +39,7 @@ export const ObsidianEditor: React.FC<ObsidianEditorProps> = ({
       await onUpdateNota(nota.id, {
         titulo: val.titulo,
         conteudo: val.conteudo,
+        temaId: val.tema_id,
       });
     },
     [nota.id, onUpdateNota]

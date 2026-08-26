@@ -19,6 +19,7 @@ export interface NotaRequestDto {
 export interface NotaUpdateDto {
   titulo: string;
   conteudo: string;
+  temaId: number;
   resumoIa?: string | null;
 }
 

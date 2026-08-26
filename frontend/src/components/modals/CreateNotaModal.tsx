@@ -62,7 +62,7 @@ export const CreateNotaModal: React.FC<CreateNotaModalProps> = ({
         await onSubmitUpdate(editingNota.id, {
           titulo: titulo.trim(),
           conteudo: conteudo.trim(),
-          
+          temaId,
         });
       } else {
         await onSubmitCreate({

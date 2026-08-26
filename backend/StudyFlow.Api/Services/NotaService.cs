@@ -55,8 +55,13 @@ namespace StudyFlow.Api.Services
             var nota = await _notaRepository.ObterPorIdAsync(id);
             if (nota == null) return false;
 
+            var tema = await _temaRepository.ObterPorIdAsync(dto.TemaId);
+            if (tema == null) return false;
+
             nota.Titulo = dto.Titulo;
             nota.Conteudo = dto.Conteudo;
+            nota.TemaId = dto.TemaId;
+            nota.Tema = tema;
             if (dto.ResumoIa != null) nota.ResumoIA = dto.ResumoIa;
 
             _notaRepository.Atualizar(nota);
