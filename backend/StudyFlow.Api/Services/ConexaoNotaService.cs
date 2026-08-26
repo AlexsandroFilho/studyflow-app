@@ -3,7 +3,6 @@
 using StudyFlow.Api.Domain.Entities;
 using StudyFlow.Api.Domain.Interfaces.Conexao;
 using StudyFlow.Api.Domain.Interfaces.Notas;
-using StudyFlow.Api.Domain.Interfaces.Temas;
 using StudyFlow.Api.DTOs;
 using StudyFlow.Api.Mappers;
 
@@ -13,16 +12,13 @@ namespace StudyFlow.Api.Services
     {
         private readonly IConexaoNotaRepository _conexaoRepository;
         private readonly INotaRepository _notaRepository;
-        private readonly ITemaRepository _temaRepository;
 
         public ConexaoNotaService(
             IConexaoNotaRepository conexaoRepository,
-            INotaRepository notaRepository,
-            ITemaRepository temaRepository)
+            INotaRepository notaRepository)
         {
             _conexaoRepository = conexaoRepository;
             _notaRepository = notaRepository;
-            _temaRepository = temaRepository;
         }
 
         public async Task<IEnumerable<ConexaoResponseDto>> ListarTodasAsync(int? temaId = null)
@@ -62,28 +58,6 @@ namespace StudyFlow.Api.Services
             await _conexaoRepository.SalvarAlteracoesAsync();
 
             return novaConexao.toResponseDto();
-        }
-
-        public async Task<(NotaResponseDto Nota, ConexaoResponseDto Conexao)?> CriarNotaConectadaAsync(CreateNotaConectadaDto dto)
-        {
-            var origem = await _notaRepository.ObterPorIdAsync(dto.NotaOrigemId);
-            if (origem == null) return null;
-
-            int temaId = dto.TemaId ?? origem.TemaId;
-            var tema = await _temaRepository.ObterPorIdAsync(temaId);
-            if (tema == null) return null;
-
-            var novaNota = NotaMapper.criarNovaNota(dto.Titulo, dto.Conteudo, temaId);
-            await _notaRepository.CriarAsync(novaNota);
-            await _notaRepository.SalvarAlteracoesAsync();
-
-            var novaConexao = ConexaoNotaMapper.criarNovaConexao(origem.Id, novaNota.Id, dto.Rotulo);
-            await _conexaoRepository.AdicionarAsync(novaConexao);
-            await _conexaoRepository.SalvarAlteracoesAsync();
-
-            novaNota.Tema = tema;
-
-            return (novaNota.toResponseDto(), novaConexao.toResponseDto());
         }
 
         public async Task<bool> DeletarPorIdAsync(int id)

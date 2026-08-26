@@ -21,12 +21,12 @@ namespace StudyFlow.Api.Data.Configurations
             builder.HasOne(c => c.NotaOrigem)
                 .WithMany(n => n.ConexoesOrigem)
                 .HasForeignKey(c => c.NotaOrigemId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(c => c.NotaDestino)
                 .WithMany(n => n.ConexoesDestino)
                 .HasForeignKey(c => c.NotaDestinoId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

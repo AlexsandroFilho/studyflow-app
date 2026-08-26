@@ -56,20 +56,6 @@ namespace StudyFlow.Api.Controllers
             }
         }
 
-        [HttpPost("nota-conectada")]
-        public async Task<ActionResult> CriarNotaConectada([FromBody] CreateNotaConectadaDto dto)
-        {
-            var resultado = await _conexaoNotaService.CriarNotaConectadaAsync(dto);
-            if (resultado == null)
-                return BadRequest(new { mensagem = "Não foi possível criar a nota conectada. Verifique se a nota de origem e o tema existem." });
-
-            return Ok(new
-            {
-                nota = resultado.Value.Nota,
-                conexao = resultado.Value.Conexao
-            });
-        }
-
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeletarPorId(int id)
         {

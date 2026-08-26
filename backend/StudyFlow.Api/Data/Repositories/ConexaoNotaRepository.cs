@@ -26,7 +26,8 @@ namespace StudyFlow.Api.Data.Repositories
         {
             return await _context.ConexaoNotas
                 .Include(c => c.NotaOrigem)
-                .Where(c => c.NotaOrigem.TemaId == temaId)
+                .Include(c => c.NotaDestino)
+                .Where(c => c.NotaOrigem!.TemaId == temaId || c.NotaDestino!.TemaId == temaId)
                 .AsNoTracking()
                 .ToListAsync();
         }

@@ -7,14 +7,6 @@ namespace StudyFlow.Api.DTOs
         string? Rotulo = null
     );
 
-    public record CreateNotaConectadaDto(
-        int NotaOrigemId,
-        string Titulo,
-        string Conteudo,
-        int? TemaId = null,
-        string? Rotulo = null
-    );
-
     public record ConexaoResponseDto(
         int Id,
         int NotaOrigemId,
