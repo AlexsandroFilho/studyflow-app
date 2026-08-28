@@ -17,6 +17,19 @@ namespace StudyFlow.Api.Data.Configurations
 
             builder.Property(n => n.Conteudo)
                 .IsRequired();
+
+            builder.Property(n => n.TemaId)
+                .IsRequired(false);
+
+            builder.HasOne(n => n.Usuario)
+                .WithMany(u => u.Notas)
+                .HasForeignKey(n => n.UsuarioId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(n => n.Tema)
+                .WithMany(t => t.Notas)
+                .HasForeignKey(n => n.TemaId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

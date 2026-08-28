@@ -1,4 +1,5 @@
 using StudyFlow.Api.Domain.Entities;
+using StudyFlow.Api.Data;
 using StudyFlow.Api.Domain.Interfaces.Notas;
 using StudyFlow.Api.Domain.Interfaces.Temas;
 using StudyFlow.Api.DTOs;
@@ -10,11 +11,16 @@ namespace StudyFlow.Api.Services
     {
         private readonly INotaRepository _notaRepository;
         private readonly ITemaRepository _temaRepository;
+        private readonly AppDbContext _dbContext;
 
-        public NotaService(INotaRepository notaRepository, ITemaRepository temaRepository)
+        public NotaService(
+            INotaRepository notaRepository,
+            ITemaRepository temaRepository,
+            AppDbContext dbContext)
         {
             _notaRepository = notaRepository;
             _temaRepository = temaRepository;
+            _dbContext = dbContext;
         }
 
         public async Task<IEnumerable<NotaResponseDto>> ListarTodasAsync()
@@ -37,15 +43,23 @@ namespace StudyFlow.Api.Services
 
         public async Task<NotaResponseDto?> CriarAsync(CreateNotaDto dto)
         {
-            var temaExistente = await _temaRepository.ObterPorIdAsync(dto.TemaId);
-            if (temaExistente == null) return null;
+            if (dto.TemaId.HasValue)
+            {
+                var temaExistente = await _temaRepository.ObterPorIdAsync(dto.TemaId.Value);
+                if (temaExistente == null) return null;
+            }
 
-            var nota = dto.toEntity();
+            var usuarioId = _dbContext.CurrentUsuarioId
+                ?? throw new UnauthorizedAccessException("Usuário autenticado não encontrado.");
+            var nota = dto.toEntity(usuarioId);
 
             await _notaRepository.CriarAsync(nota);
             await _notaRepository.SalvarAlteracoesAsync();
 
-            nota.Tema = temaExistente;
+            if (dto.TemaId.HasValue)
+            {
+                nota.Tema = await _temaRepository.ObterPorIdAsync(dto.TemaId.Value);
+            }
 
             return nota.toResponseDto();
         }
@@ -55,13 +69,22 @@ namespace StudyFlow.Api.Services
             var nota = await _notaRepository.ObterPorIdAsync(id);
             if (nota == null) return false;
 
-            var tema = await _temaRepository.ObterPorIdAsync(dto.TemaId);
-            if (tema == null) return false;
+            if (dto.TemaId.HasValue)
+            {
+                var tema = await _temaRepository.ObterPorIdAsync(dto.TemaId.Value);
+                if (tema == null) return false;
+
+                nota.TemaId = dto.TemaId;
+                nota.Tema = tema;
+            }
+            else
+            {
+                nota.TemaId = null;
+                nota.Tema = null;
+            }
 
             nota.Titulo = dto.Titulo;
             nota.Conteudo = dto.Conteudo;
-            nota.TemaId = dto.TemaId;
-            nota.Tema = tema;
             if (dto.ResumoIa != null) nota.ResumoIA = dto.ResumoIa;
 
             _notaRepository.Atualizar(nota);

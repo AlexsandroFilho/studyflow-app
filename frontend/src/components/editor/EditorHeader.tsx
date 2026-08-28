@@ -32,15 +32,15 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
     switch (saveStatus) {
       case "saving":
         return (
-          <span className="flex items-center gap-1.5 text-[11px] text-[#9DB2BF]">
+          <span className="flex items-center gap-1.5 text-[11px] text-slate-500">
             <RefreshCw className="w-3 h-3 animate-spin" />
             Salvando...
           </span>
         );
       case "saved":
         return (
-          <span className="flex items-center gap-1.5 text-[11px] text-[#DDE6ED]">
-            <CheckCircle2 className="w-3 h-3 text-[#9DB2BF]" />
+          <span className="flex items-center gap-1.5 text-[11px] text-slate-700">
+            <CheckCircle2 className="w-3 h-3 text-blue-600" />
             Salvo
           </span>
         );
@@ -53,21 +53,21 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
         );
       default:
         return (
-          <span className="text-[11px] text-[#9DB2BF]">Modificado</span>
+          <span className="text-[11px] text-slate-500">Modificado</span>
         );
     }
   };
 
   return (
-    <div className="border-b border-[#526D82]/50 bg-[#161B22] px-5 py-3 flex flex-col gap-3 shrink-0 shadow-sm">
+    <div className="border-b border-slate-200 bg-white px-5 py-3 flex flex-col gap-3 shrink-0 shadow-sm">
       {/* Linha Superior */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
             onClick={onBackToCanvas}
-            className="flex items-center gap-1.5 text-xs font-semibold text-[#DDE6ED] bg-[#27374D] hover:bg-[#526D82] px-3 py-1.5 rounded-lg transition-colors border border-[#526D82]"
+            className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors border border-slate-200"
           >
-            <ArrowLeft className="w-3.5 h-3.5 text-[#9DB2BF]" />
+            <ArrowLeft className="w-3.5 h-3.5 text-blue-600" />
             Quadro Canvas
           </button>
           {renderSaveStatus()}
@@ -75,7 +75,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
 
         <div className="flex items-center gap-2">
           {/* Alternador de visualização */}
-          <div className="flex items-center bg-[#27374D] border border-[#526D82] rounded-lg p-0.5 shadow-inner">
+          <div className="flex items-center bg-slate-100 border border-slate-200 rounded-lg p-0.5 shadow-inner">
             {(["edit", "split", "preview"] as const).map((mode) => {
               const icons = {
                 edit: <Edit3 className="w-3.5 h-3.5" />,
@@ -89,8 +89,8 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
                   onClick={() => setEditorMode(mode)}
                   className={`p-1.5 rounded-md transition-colors ${
                     editorMode === mode
-                      ? "bg-[#526D82] text-[#DDE6ED] font-bold shadow-sm"
-                      : "text-[#9DB2BF] hover:text-[#DDE6ED] hover:bg-[#31435D]"
+                      ? "bg-white text-blue-700 font-bold shadow-sm"
+                      : "text-slate-500 hover:text-slate-800 hover:bg-blue-50"
                   }`}
                   title={titles[mode]}
                 >
@@ -102,7 +102,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
 
           <button
             onClick={onDeleteNota}
-            className="p-1.5 rounded-lg text-[#9DB2BF] hover:text-red-400 hover:bg-red-950/40 transition-colors"
+            className="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
             title="Excluir Nota"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -117,13 +117,13 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
           value={titulo}
           onChange={(e) => onTituloChange(e.target.value)}
           placeholder="Título da nota..."
-          className="flex-1 bg-transparent text-lg font-bold text-[#DDE6ED] placeholder-[#526D82] focus:outline-none"
+          className="flex-1 bg-transparent text-lg font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none"
         />
 
         <select
           value={temaId}
           onChange={(e) => onTemaChange(Number(e.target.value))}
-          className="bg-[#27374D] border border-[#526D82] rounded-lg px-3 py-1.5 text-xs text-[#DDE6ED] focus:outline-none focus:border-[#9DB2BF] cursor-pointer"
+          className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-500 cursor-pointer"
         >
           {temas.map((t) => (
             <option key={t.id} value={t.id}>

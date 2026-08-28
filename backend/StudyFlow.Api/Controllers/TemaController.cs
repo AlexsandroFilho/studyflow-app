@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using StudyFlow.Api.Domain.Entities;
@@ -7,6 +8,7 @@ using StudyFlow.Api.DTOs;
 namespace StudyFlow.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/v1/temas")]
     public class TemaController : ControllerBase
     {

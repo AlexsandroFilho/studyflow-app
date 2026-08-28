@@ -95,7 +95,7 @@ export const CreateNotaModal: React.FC<CreateNotaModalProps> = ({
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="p-3 rounded-lg bg-red-950/40 border border-red-800/60 text-xs text-red-300">
+          <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-600">
             {error}
           </div>
         )}
@@ -109,13 +109,13 @@ export const CreateNotaModal: React.FC<CreateNotaModalProps> = ({
         />
 
         <div className="w-full space-y-1.5">
-          <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#9DB2BF]">
+          <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500">
             Tema de Estudo
           </label>
           <select
             value={temaId}
             onChange={(e) => setTemaId(Number(e.target.value))}
-            className="w-full rounded-lg bg-[#161B22] border border-[#526D82] px-3.5 py-2 text-sm text-[#DDE6ED] focus:border-[#9DB2BF] focus:outline-none transition-colors cursor-pointer"
+            className="w-full rounded-lg bg-slate-50 border border-slate-200 px-3.5 py-2 text-sm text-slate-800 focus:border-blue-500 focus:outline-none transition-colors cursor-pointer"
           >
             {temas.map((t) => (
               <option key={t.id} value={t.id}>
@@ -134,7 +134,7 @@ export const CreateNotaModal: React.FC<CreateNotaModalProps> = ({
           required
         />
 
-        <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#526D82]/50">
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
           <Button variant="ghost" size="sm" type="button" onClick={onClose}>
             Cancelar
           </Button>

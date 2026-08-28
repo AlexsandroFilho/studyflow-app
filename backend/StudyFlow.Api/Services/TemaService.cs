@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http.HttpResults;
+using StudyFlow.Api.Data;
 using StudyFlow.Api.Domain.Entities;
 using StudyFlow.Api.Domain.Interfaces.Temas;
 using StudyFlow.Api.DTOs;
@@ -10,10 +10,12 @@ namespace StudyFlow.Api.Services
     {
 
         private readonly ITemaRepository _temaRepository;
+        private readonly AppDbContext _dbContext;
 
-        public TemaService(ITemaRepository temaRepository)
+        public TemaService(ITemaRepository temaRepository, AppDbContext dbContext)
         {
             _temaRepository = temaRepository;
+            _dbContext = dbContext;
         }
 
         public async Task<IEnumerable<TemaResponseDto>> ListarTodosAsync()
@@ -30,7 +32,9 @@ namespace StudyFlow.Api.Services
 
         public async Task<TemaResponseDto> CriarAsync(CreateTemaDto dto)
         {
-            var tema = dto.toEntity();
+            var usuarioId = _dbContext.CurrentUsuarioId
+                ?? throw new UnauthorizedAccessException("Usuário autenticado não encontrado.");
+            var tema = dto.toEntity(usuarioId);
 
             await _temaRepository.CriarAsync(tema);
             await _temaRepository.SalvarAlteracoesAsync();

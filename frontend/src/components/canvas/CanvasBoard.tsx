@@ -146,9 +146,9 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
       onDoubleClick={handleDoubleClick}
     >
       <div
-        className="absolute inset-0 pointer-events-none canvas-bg"
+        className="absolute inset-0 pointer-events-none canvas-bg bg-[#F8FAFC]"
         style={{
-          backgroundImage: "radial-gradient(circle, rgba(139, 92, 246, 0.18) 1.2px, transparent 1.2px)",
+          backgroundImage: "radial-gradient(circle, rgba(148, 163, 184, 0.42) 1.1px, transparent 1.1px)",
           backgroundSize: `${32 * viewport.zoom}px ${32 * viewport.zoom}px`,
           backgroundPosition: `${viewport.x}px ${viewport.y}px`,
         }}
@@ -170,7 +170,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
               refY="3"
               orient="auto"
             >
-              <polygon points="0 0, 8 3, 0 6" fill="#5120B5" />
+              <polygon points="0 0, 8 3, 0 6" fill="#2563eb" />
             </marker>
           </defs>
 
@@ -203,12 +203,12 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
                 <path
                   d={path}
                   fill="none"
-                  stroke="#8B5CF6"
+                  stroke="#2563eb"
                   strokeWidth="2"
-                  strokeOpacity="0.85"
+                  strokeOpacity="0.9"
                   strokeLinecap="round"
                   markerEnd="url(#arrowhead)"
-                  className="hover:stroke-[#9DB2BF] hover:stroke-[3px] transition-all"
+                  className="hover:stroke-blue-600 hover:stroke-[3px] transition-all"
                   onClick={() => onDeleteEdge && onDeleteEdge(edge)}
                 />
               </g>
@@ -225,7 +225,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
                 connectingSourceSide || undefined
               )}
               fill="none"
-              stroke="#8B5CF6"
+              stroke="#2563eb"
               strokeWidth="2.5"
               strokeDasharray="6 4"
               strokeLinecap="round"
@@ -266,20 +266,20 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
 
       <div className="absolute top-4 left-5 z-20">
         {connectingSourceId ? (
-          <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-lg bg-[#27374D] border border-[#9DB2BF] text-xs text-[#DDE6ED] shadow-xl animate-pulse">
-            <Link2 className="w-4 h-4 text-[#9DB2BF]" />
+          <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-lg bg-white border border-blue-200 text-xs text-slate-700 shadow-md animate-pulse">
+            <Link2 className="w-4 h-4 text-blue-600" />
             <span>Clique na nota de destino para conectá-las</span>
             <button
               onClick={onCancelConnecting}
-              className="ml-2 p-1 rounded hover:bg-[#526D82] text-[#9DB2BF] hover:text-white"
+              className="ml-2 p-1 rounded hover:bg-slate-100 text-slate-500 hover:text-slate-700"
               title="Cancelar"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1C2430]/90 border border-[#526D82]/50 text-[11px] text-[#9DB2BF] shadow-md backdrop-blur-sm">
-            <MousePointer2 className="w-3.5 h-3.5 shrink-0 text-[#9DB2BF]" />
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/90 border border-slate-200 text-[11px] text-slate-600 shadow-sm backdrop-blur-sm">
+            <MousePointer2 className="w-3.5 h-3.5 shrink-0 text-blue-600" />
             <span>Arraste o fundo para navegar · Use os pontos do card para conectar notas</span>
           </div>
         )}

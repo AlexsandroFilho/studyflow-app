@@ -1,13 +1,16 @@
-using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using StudyFlow.Api.Domain.Entities;
+using StudyFlow.Api.Data.Configurations;
 
 namespace StudyFlow.Api.Data
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
+        public Guid? CurrentUsuarioId { get; set; }
+
+        public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Tema> Temas { get; set; }
         public DbSet<Nota> Notas { get; set; }
         public DbSet<ConexaoNota> ConexaoNotas { get; set; }
@@ -15,8 +18,8 @@ namespace StudyFlow.Api.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+            new UsuarioScopeConfiguration().Configure(modelBuilder, this);
         }
     }
 }

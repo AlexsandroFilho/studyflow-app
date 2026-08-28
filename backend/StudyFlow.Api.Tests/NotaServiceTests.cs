@@ -1,6 +1,8 @@
 using Bogus;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Moq;
+using StudyFlow.Api.Data;
 using StudyFlow.Api.Domain.Entities;
 using StudyFlow.Api.Domain.Interfaces.Notas;
 using StudyFlow.Api.Domain.Interfaces.Temas;
@@ -99,7 +101,7 @@ public class NotaServiceTests
     public async Task CriarAsync_QuandoTemaNaoExiste_NaoDeveCriarNotaNemSalvarERetornarNulo()
     {
         var dto = new CreateNotaDto(faker.Lorem.Sentence(), faker.Lorem.Paragraph(), faker.Random.Int(1, 100));
-        temaRepository.Setup(repository => repository.ObterPorIdAsync(dto.TemaId)).ReturnsAsync((Tema?)null);
+        temaRepository.Setup(repository => repository.ObterPorIdAsync(dto.TemaId!.Value)).ReturnsAsync((Tema?)null);
         var service = CriarService();
 
         var resultado = await service.CriarAsync(dto);
@@ -153,7 +155,7 @@ public class NotaServiceTests
         var nota = CriarNota(CriarTema());
         var dto = new UpdateNotaDto(faker.Lorem.Sentence(), faker.Lorem.Paragraph(), 999);
         notaRepository.Setup(repository => repository.ObterPorIdAsync(nota.Id)).ReturnsAsync(nota);
-        temaRepository.Setup(repository => repository.ObterPorIdAsync(dto.TemaId)).ReturnsAsync((Tema?)null);
+        temaRepository.Setup(repository => repository.ObterPorIdAsync(dto.TemaId!.Value)).ReturnsAsync((Tema?)null);
         var service = CriarService();
 
         var resultado = await service.AtualizarAsync(nota.Id, dto);
@@ -170,7 +172,7 @@ public class NotaServiceTests
         var resumoOriginal = nota.ResumoIA;
         var dto = new UpdateNotaDto(faker.Lorem.Sentence(), faker.Lorem.Paragraph(), nota.TemaId);
         notaRepository.Setup(repository => repository.ObterPorIdAsync(nota.Id)).ReturnsAsync(nota);
-        temaRepository.Setup(repository => repository.ObterPorIdAsync(nota.TemaId)).ReturnsAsync(nota.Tema);
+        temaRepository.Setup(repository => repository.ObterPorIdAsync(nota.TemaId!.Value)).ReturnsAsync(nota.Tema);
         notaRepository.Setup(repository => repository.SalvarAlteracoesAsync()).ReturnsAsync(true);
         var service = CriarService();
 
@@ -208,7 +210,16 @@ public class NotaServiceTests
         notaRepository.Verify(repository => repository.SalvarAlteracoesAsync(), Times.Never);
     }
 
-    private NotaService CriarService() => new(notaRepository.Object, temaRepository.Object);
+    private NotaService CriarService() => new(notaRepository.Object, temaRepository.Object, CriarDbContext());
+
+    private static AppDbContext CriarDbContext()
+    {
+        var dbContext = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().Options)
+        {
+            CurrentUsuarioId = Guid.NewGuid()
+        };
+        return dbContext;
+    }
 
     private Tema CriarTema() => new()
     {

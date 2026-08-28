@@ -75,7 +75,7 @@ export const CreateTemaModal: React.FC<CreateTemaModalProps> = ({
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="p-3 rounded-lg bg-red-950/40 border border-red-800/60 text-xs text-red-300">
+          <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-600">
             {error}
           </div>
         )}
@@ -96,7 +96,7 @@ export const CreateTemaModal: React.FC<CreateTemaModalProps> = ({
           rows={3}
         />
 
-        <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#526D82]/50">
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
           <Button variant="ghost" size="sm" type="button" onClick={onClose}>
             Cancelar
           </Button>

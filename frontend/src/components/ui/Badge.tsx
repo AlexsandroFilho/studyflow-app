@@ -9,7 +9,7 @@ interface BadgeProps {
 
 export const Badge: React.FC<BadgeProps> = ({
   children,
-  color = "#526D82",
+  color = "#2563EB",
   variant = "subtle",
   size = "sm",
 }) => {
@@ -20,7 +20,7 @@ export const Badge: React.FC<BadgeProps> = ({
       className={`inline-flex items-center gap-1.5 rounded-md font-medium tracking-wide ${sizeClasses}`}
       style={{
         backgroundColor: variant === "subtle" ? `${color}33` : variant === "solid" ? color : "transparent",
-        color: variant === "solid" ? "#ffffff" : "#DDE6ED",
+        color: variant === "solid" ? "#ffffff" : "#1D4ED8",
         border: `1px solid ${color}${variant === "outline" ? "88" : "55"}`,
       }}
     >

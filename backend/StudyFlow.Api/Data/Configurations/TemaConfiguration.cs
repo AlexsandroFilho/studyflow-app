@@ -6,7 +6,6 @@ namespace StudyFlow.Api.Data.Configurations
 {
     public class TemaConfiguration : IEntityTypeConfiguration<Tema>
     {
-
         public void Configure(EntityTypeBuilder<Tema> builder)
         {
             builder.ToTable("temas");
@@ -19,12 +18,10 @@ namespace StudyFlow.Api.Data.Configurations
             builder.Property(t => t.Descricao)
                 .HasMaxLength(255);
 
-            builder.HasMany(t => t.Notas)
-                .WithOne(n => n.Tema)
-                .HasForeignKey(n => n.TemaId)
-                .OnDelete(DeleteBehavior.Cascade);
-        
+            builder.HasOne(t => t.Usuario)
+                .WithMany(u => u.Temas)
+                .HasForeignKey(t => t.UsuarioId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
-        
     }
 }

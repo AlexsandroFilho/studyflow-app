@@ -1,53 +1,34 @@
-using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using StudyFlow.Api.Configurations;
-using StudyFlow.Api.Data;
-using StudyFlow.Api.Data.Repositories;
-using StudyFlow.Api.Domain.Interfaces.Conexao;
-using StudyFlow.Api.Domain.Interfaces.Notas;
-using StudyFlow.Api.Domain.Interfaces.Temas;
 using StudyFlow.Api.Middlewares;
-using StudyFlow.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<AppDbContext>(options =>
-options.UseNpgsql(connectionString));
+builder.Services.AddDatabaseConfiguration(builder.Configuration);
+builder.Services.AddJwtConfiguration(builder.Configuration);
+builder.Services.AddJsonSerializationConfiguration();
+builder.Services.AddApplicationServices();
 
-// Add services to the container.
-
-builder.Services.AddControllers()
-.AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
-    });
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddScoped<ITemaRepository, TemaRepository>();
-builder.Services.AddScoped<ITemaService, TemaService>();
-builder.Services.AddScoped<INotaRepository, NotaRepository>();
-builder.Services.AddScoped<INotaService, NotaService>();
-builder.Services.AddScoped<IConexaoNotaRepository, ConexaoNotaRepository>();
-builder.Services.AddScoped<IConexaoNotaService, ConexaoNotaService>();
+
 builder.Services.AddCorsConfiguration();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
 
-app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.UseCorsConfiguration();
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseMiddleware<CurrentUsuarioMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 

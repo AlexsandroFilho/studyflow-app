@@ -33,12 +33,12 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} maxWidth="sm">
       <div className="space-y-4">
-        <div className="flex items-start gap-3 p-3.5 rounded-lg bg-red-950/20 border border-red-800/40 text-red-300">
-          <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-red-400" />
+        <div className="flex items-start gap-3 p-3.5 rounded-lg bg-red-50 border border-red-200 text-red-600">
+          <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
           <p className="text-xs leading-relaxed">{description}</p>
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#526D82]/50">
+        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
           <Button variant="ghost" size="sm" onClick={onClose} disabled={loading}>
             Cancelar
           </Button>

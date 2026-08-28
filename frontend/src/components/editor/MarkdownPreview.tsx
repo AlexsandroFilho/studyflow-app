@@ -7,23 +7,23 @@ interface MarkdownPreviewProps {
 }
 
 const FULL_CLASSES = {
-  h1: "text-xl font-bold text-[#DDE6ED] mt-5 mb-2.5 border-b border-[#526D82]/50 pb-1.5 tracking-tight",
-  h2: "text-base font-bold text-[#9DB2BF] mt-4 mb-2 border-b border-[#526D82]/40 pb-1",
-  h3: "text-sm font-bold text-[#DDE6ED] mt-3.5 mb-1.5 border-b border-[#526D82]/40 pb-1",
+  h1: "text-xl font-bold text-slate-800 mt-5 mb-2.5 border-b border-slate-200 pb-1.5 tracking-tight",
+  h2: "text-base font-bold text-blue-700 mt-4 mb-2 border-b border-slate-200 pb-1",
+  h3: "text-sm font-bold text-slate-800 mt-3.5 mb-1.5 border-b border-slate-200 pb-1",
   quote:
-    "border-l-2 border-[#9DB2BF] bg-[#27374D] px-3.5 py-1.5 rounded-r-md my-2 text-xs text-[#DDE6ED] italic",
-  li: "ml-5 list-disc text-xs text-[#DDE6ED] my-0.5 leading-relaxed",
-  p: "text-xs text-[#DDE6ED] leading-relaxed my-1",
+    "border-l-2 border-blue-400 bg-blue-50 px-3.5 py-1.5 rounded-r-md my-2 text-xs text-slate-700 italic",
+  li: "ml-5 list-disc text-xs text-slate-700 my-0.5 leading-relaxed",
+  p: "text-xs text-slate-700 leading-relaxed my-1",
   blank: "h-2.5",
 } as const;
 
 const SNIPPET_CLASSES = {
-  h1: "text-xs font-semibold text-[#DDE6ED] leading-relaxed",
-  h2: "text-xs font-semibold text-[#DDE6ED] leading-relaxed",
-  h3: "text-xs font-semibold text-[#DDE6ED] leading-relaxed",
-  quote: "text-xs text-[#9DB2BF] italic leading-relaxed border-l-2 border-[#526D82] pl-2",
-  li: "ml-4 list-disc text-xs text-[#9DB2BF] leading-relaxed",
-  p: "text-xs text-[#9DB2BF] leading-relaxed",
+  h1: "text-xs font-semibold text-slate-800 leading-relaxed",
+  h2: "text-xs font-semibold text-slate-800 leading-relaxed",
+  h3: "text-xs font-semibold text-slate-800 leading-relaxed",
+  quote: "text-xs text-slate-500 italic leading-relaxed border-l-2 border-blue-300 pl-2",
+  li: "ml-4 list-disc text-xs text-slate-500 leading-relaxed",
+  p: "text-xs text-slate-500 leading-relaxed",
   blank: "h-1",
 } as const;
 
@@ -36,7 +36,7 @@ export const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({
   if (!content.trim()) {
     if (variant === "snippet") return null;
     return (
-      <div className="text-[#9DB2BF] italic text-xs py-4">
+      <div className="text-slate-500 italic text-xs py-4">
         Comece a digitar no editor para visualizar a prévia formatada...
       </div>
     );

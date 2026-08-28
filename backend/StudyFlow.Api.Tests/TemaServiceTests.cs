@@ -1,6 +1,8 @@
 using Bogus;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Moq;
+using StudyFlow.Api.Data;
 using StudyFlow.Api.Domain.Entities;
 using StudyFlow.Api.Domain.Interfaces.Temas;
 using StudyFlow.Api.DTOs;
@@ -132,7 +134,15 @@ public class TemaServiceTests
         temaRepository.Verify(repository => repository.SalvarAlteracoesAsync(), Times.Never);
     }
 
-    private TemaService CriarService() => new(temaRepository.Object);
+    private TemaService CriarService() => new(temaRepository.Object, CriarDbContext());
+
+    private static AppDbContext CriarDbContext()
+    {
+        return new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().Options)
+        {
+            CurrentUsuarioId = Guid.NewGuid()
+        };
+    }
 
     private Tema CriarTema() => new()
     {

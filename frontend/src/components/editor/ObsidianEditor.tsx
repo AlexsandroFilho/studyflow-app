@@ -77,7 +77,7 @@ export const ObsidianEditor: React.FC<ObsidianEditorProps> = ({
   ];
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#161B22] overflow-hidden">
+    <div className="flex-1 flex flex-col h-full bg-white overflow-hidden">
       <EditorHeader
         titulo={titulo}
         onTituloChange={setTitulo}
@@ -92,12 +92,12 @@ export const ObsidianEditor: React.FC<ObsidianEditorProps> = ({
       />
 
       {/* Toolbar de Formatação */}
-      <div className="px-5 py-1.5 border-b border-[#526D82]/40 bg-[#1C2430] flex items-center gap-0.5">
+      <div className="px-5 py-1.5 border-b border-slate-200 bg-slate-50 flex items-center gap-0.5">
         {toolbarItems.map((item, i) => (
           <button
             key={i}
             onClick={item.action}
-            className="p-1.5 rounded text-[#9DB2BF] hover:text-[#DDE6ED] hover:bg-[#27374D] transition-colors"
+            className="p-1.5 rounded text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition-colors"
             title={item.title}
           >
             {item.icon}
@@ -110,7 +110,7 @@ export const ObsidianEditor: React.FC<ObsidianEditorProps> = ({
         {(editorMode === "edit" || editorMode === "split") && (
           <div
             className={`flex-1 flex flex-col overflow-hidden ${
-              editorMode === "split" ? "border-r border-[#526D82]/40" : ""
+              editorMode === "split" ? "border-r border-slate-200" : ""
             }`}
           >
             <textarea
@@ -118,20 +118,20 @@ export const ObsidianEditor: React.FC<ObsidianEditorProps> = ({
               value={conteudo}
               onChange={(e) => setConteudo(e.target.value)}
               placeholder="Comece a escrever suas anotações em Markdown..."
-              className="flex-1 w-full bg-transparent px-6 py-5 text-sm text-[#DDE6ED] placeholder-[#526D82] focus:outline-none resize-none font-mono leading-relaxed select-text"
+              className="flex-1 w-full bg-transparent px-6 py-5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none resize-none font-mono leading-relaxed select-text"
             />
           </div>
         )}
 
         {(editorMode === "preview" || editorMode === "split") && (
-          <div className="flex-1 overflow-y-auto px-6 py-5 bg-[#161B22]">
+          <div className="flex-1 overflow-y-auto px-6 py-5 bg-white">
             <MarkdownPreview content={conteudo} />
           </div>
         )}
       </div>
 
       {/* Rodapé */}
-      <div className="h-7 border-t border-[#526D82]/40 bg-[#1C2430] px-5 flex items-center justify-between text-[11px] text-[#9DB2BF] font-mono shrink-0">
+      <div className="h-7 border-t border-slate-200 bg-slate-50 px-5 flex items-center justify-between text-[11px] text-slate-500 font-mono shrink-0">
         <span>Nota #{nota.id}</span>
         <span>
           {wordCount} palavras · {conteudo.length} caracteres

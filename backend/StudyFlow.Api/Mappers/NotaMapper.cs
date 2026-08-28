@@ -22,19 +22,20 @@ namespace StudyFlow.Api.Mappers
             );
         }
 
-        public static Nota toEntity(this CreateNotaDto dto)
+        public static Nota toEntity(this CreateNotaDto dto, Guid usuarioId)
         {
             return new Nota
             {
                 Titulo = dto.Titulo,
                 Conteudo = dto.Conteudo,
                 ResumoIA = dto.ResumoIa,
+                UsuarioId = usuarioId,
                 TemaId = dto.TemaId,
                 DataCriacao = DateTime.UtcNow
             };
         }
 
-        public static Nota criarNovaNota(string titulo, string conteudo, int temaId, string? resumoIa = null)
+        public static Nota criarNovaNota(string titulo, string conteudo, int? temaId, string? resumoIa = null)
         {
             return new Nota
             {

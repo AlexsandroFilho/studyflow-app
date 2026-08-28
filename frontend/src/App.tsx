@@ -14,8 +14,10 @@ import { useCanvas } from "./hooks/useCanvas";
 import { Tema } from "./types/tema";
 import { Nota } from "./types/nota";
 import { CanvasNode, CanvasEdge } from "./types/canvas";
+import { useAuth } from "./contexts/AuthContext";
 
 export function App() {
+  const { logout } = useAuth();
   const [viewMode, setViewMode] = useState<ViewMode>("canvas");
   const [searchTerm, setSearchTerm] = useState<string>("");
 
@@ -155,7 +157,7 @@ export function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#161B22] text-[#DDE6ED] overflow-hidden font-sans select-none">
+    <div className="flex flex-col h-screen w-screen bg-[#F8FAFC] text-slate-800 overflow-hidden font-sans select-none">
       <Header
         viewMode={viewMode}
         setViewMode={setViewMode}
@@ -170,9 +172,10 @@ export function App() {
         totalNotas={notas.length}
         totalTemas={temas.length}
         totalConexoes={conexoes.length}
+        onLogout={logout}
       />
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden bg-[#F8FAFC]">
         <Sidebar
           temas={temas}
           notas={notas}
@@ -191,9 +194,9 @@ export function App() {
           onSearchChange={setSearchTerm}
         />
 
-        <main className="flex-1 flex relative overflow-hidden bg-[#161B22]">
+        <main className="flex-1 flex relative overflow-hidden bg-[#F8FAFC]">
           {loadingTemas || loadingNotas ? (
-            <div className="flex-1 flex items-center justify-center bg-[#161B22]">
+            <div className="flex-1 flex items-center justify-center bg-[#F8FAFC]">
               <Spinner size="lg" />
             </div>
           ) : viewMode === "canvas" ? (
@@ -233,7 +236,7 @@ export function App() {
               onBackToCanvas={() => setViewMode("canvas")}
             />
           ) : (
-            <div className="flex-1 flex items-center justify-center text-xs text-[#9DB2BF]">
+            <div className="flex-1 flex items-center justify-center text-xs text-slate-500">
               Nenhuma nota selecionada para edição. Selecione uma nota no Mapa Mental ou crie uma nova.
             </div>
           )}

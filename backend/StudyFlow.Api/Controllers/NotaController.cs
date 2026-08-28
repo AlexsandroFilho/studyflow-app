@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudyFlow.Api.Domain.Interfaces.Notas;
 using StudyFlow.Api.DTOs;
@@ -6,6 +7,7 @@ using StudyFlow.Api.DTOs;
 namespace StudyFlow.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/v1/notas")]
     public class NotaController : ControllerBase
     {

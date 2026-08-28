@@ -3,14 +3,14 @@ namespace StudyFlow.Api.DTOs
     public record CreateNotaDto(
         string Titulo,
         string Conteudo,
-        int TemaId,
+        int? TemaId,
         string? ResumoIa = null
     );
 
     public record UpdateNotaDto(
         string Titulo,
         string Conteudo,
-        int TemaId,
+        int? TemaId,
         string? ResumoIa = null
     );
 
@@ -20,7 +20,7 @@ namespace StudyFlow.Api.DTOs
         string Conteudo,
         string? ResumoIa,
         DateTime DataCriacao,
-        int TemaId,
+        int? TemaId,
         string? NomeTema = null
     );
 }

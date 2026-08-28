@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudyFlow.Api.Domain.Interfaces.Conexao;
 using StudyFlow.Api.DTOs;
@@ -5,6 +6,7 @@ using StudyFlow.Api.DTOs;
 namespace StudyFlow.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/v1/conexoes")]
     public class ConexaoNotaController : Controller
     {
@@ -42,18 +44,11 @@ namespace StudyFlow.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<ConexaoResponseDto>> CriarConexao([FromBody] CreateConexaoDto dto)
         {
-            try
-            {
-                var conexao = await _conexaoNotaService.CriarConexaoAsync(dto);
-                if (conexao == null)
-                    return BadRequest(new { mensagem = "Não foi possível criar a conexão. Verifique se as notas de origem e destino existem." });
+            var conexao = await _conexaoNotaService.CriarConexaoAsync(dto);
+            if (conexao == null)
+                return BadRequest(new { mensagem = "Não foi possível criar a conexão. Verifique se as notas de origem e destino existem." });
 
-                return CreatedAtAction(nameof(ObterPorId), new { id = conexao.Id }, conexao);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { mensagem = ex.Message });
-            }
+            return CreatedAtAction(nameof(ObterPorId), new { id = conexao.Id }, conexao);
         }
 
         [HttpDelete("{id:int}")]

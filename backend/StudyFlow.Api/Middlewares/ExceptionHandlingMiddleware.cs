@@ -1,6 +1,5 @@
 
 
-using System.Net;
 using System.Text.Json;
 
 namespace StudyFlow.Api.Middlewares
@@ -9,11 +8,16 @@ namespace StudyFlow.Api.Middlewares
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+        private readonly IHostEnvironment _environment;
 
-        public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+        public ExceptionHandlingMiddleware(
+            RequestDelegate next,
+            ILogger<ExceptionHandlingMiddleware> logger,
+            IHostEnvironment environment)
         {
             _next = next;
             _logger = logger;
+            _environment = environment;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -29,21 +33,37 @@ namespace StudyFlow.Api.Middlewares
             }
         }
 
-        private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+        private Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
-            context.Response.ContentType = "application/json";
-
-            var response = exception switch
+            var statusCode = exception switch
             {
-                InvalidOperationException => new { status = (int)HttpStatusCode.BadRequest, mensagem = exception.Message },
-                KeyNotFoundException => new { status = (int)HttpStatusCode.NotFound, mensagem = exception.Message },
-                _ => new { status = (int)HttpStatusCode.InternalServerError, mensagem = "Ocorreu um erro interno no servidor." }
+                UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+                InvalidOperationException => StatusCodes.Status400BadRequest,
+                KeyNotFoundException => StatusCodes.Status404NotFound,
+                _ => StatusCodes.Status500InternalServerError
             };
 
-            context.Response.StatusCode = response.status;
+            var response = new ErrorResponse(
+                StatusCode: statusCode,
+                Message: statusCode == StatusCodes.Status500InternalServerError
+                    ? "Ocorreu um erro interno no servidor."
+                    : exception.Message,
+                Details: _environment.IsDevelopment() ? exception.StackTrace : null,
+                TraceId: context.TraceIdentifier);
 
-            var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-            return context.Response.WriteAsync(JsonSerializer.Serialize(response, jsonOptions));
+            context.Response.StatusCode = statusCode;
+            context.Response.ContentType = "application/json; charset=utf-8";
+
+            return context.Response.WriteAsJsonAsync(response, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
         }
     }
+
+    public sealed record ErrorResponse(
+        int StatusCode,
+        string Message,
+        string? Details,
+        string TraceId);
 }

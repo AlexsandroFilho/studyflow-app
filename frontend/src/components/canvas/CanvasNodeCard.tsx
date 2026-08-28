@@ -80,7 +80,7 @@ export const CanvasNodeCard: React.FC<CanvasNodeCardProps> = ({
             onStartConnecting(e, node.id, "top");
           }
         }}
-        className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#8B5CF6] border-2 border-[#0F0E17] opacity-0 group-hover:opacity-100 hover:scale-125 transition-all z-30 cursor-crosshair"
+        className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-blue-500 border-2 border-white opacity-0 group-hover:opacity-100 hover:scale-125 transition-all z-30 cursor-crosshair"
       />
       <button
         type="button"
@@ -93,7 +93,7 @@ export const CanvasNodeCard: React.FC<CanvasNodeCardProps> = ({
             onStartConnecting(e, node.id, "bottom");
           }
         }}
-        className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#8B5CF6] border-2 border-[#0F0E17] opacity-0 group-hover:opacity-100 hover:scale-125 transition-all z-30 cursor-crosshair"
+        className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-blue-500 border-2 border-white opacity-0 group-hover:opacity-100 hover:scale-125 transition-all z-30 cursor-crosshair"
       />
       <button
         type="button"
@@ -106,7 +106,7 @@ export const CanvasNodeCard: React.FC<CanvasNodeCardProps> = ({
             onStartConnecting(e, node.id, "left");
           }
         }}
-        className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-[#8B5CF6] border-2 border-[#0F0E17] opacity-0 group-hover:opacity-100 hover:scale-125 transition-all z-30 cursor-crosshair"
+        className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-blue-500 border-2 border-white opacity-0 group-hover:opacity-100 hover:scale-125 transition-all z-30 cursor-crosshair"
       />
       <button
         type="button"
@@ -119,16 +119,16 @@ export const CanvasNodeCard: React.FC<CanvasNodeCardProps> = ({
             onStartConnecting(e, node.id, "right");
           }
         }}
-        className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-[#8B5CF6] border-2 border-[#0F0E17] opacity-0 group-hover:opacity-100 hover:scale-125 transition-all z-30 cursor-crosshair"
+        className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-blue-500 border-2 border-white opacity-0 group-hover:opacity-100 hover:scale-125 transition-all z-30 cursor-crosshair"
       />
 
       <div
-        className={`w-full h-full rounded-xl border p-3.5 flex flex-col justify-between transition-all duration-150 cursor-grab active:cursor-grabbing shadow-xl shadow-purple-950/20 relative ${
+        className={`w-full h-full rounded-xl border p-3.5 flex flex-col justify-between transition-all duration-150 cursor-grab active:cursor-grabbing shadow-md shadow-slate-200/50 relative ${
           isSelected
-            ? "bg-[#27374D] border-[#9DB2BF] ring-2 ring-[#9DB2BF]/30 shadow-2xl scale-[1.02]"
+            ? "bg-white border-blue-500 ring-2 ring-blue-100 shadow-lg shadow-blue-200/40 scale-[1.02]"
             : isConnectingSource
-            ? "bg-[#27374D] border-[#9DB2BF] ring-2 ring-emerald-500/50"
-            : "bg-[#1C2430]/95 border-[#526D82]/40 hover:border-[#526D82]"
+            ? "bg-white border-blue-500 ring-2 ring-blue-100"
+            : "bg-white border-slate-200 hover:border-blue-500"
         }`}
         style={{
           borderTopWidth: "4px",
@@ -137,7 +137,7 @@ export const CanvasNodeCard: React.FC<CanvasNodeCardProps> = ({
       >
         <div>
           <div className="flex items-start justify-between gap-2 mb-1.5">
-            <h3 className="font-semibold text-sm text-[#DDE6ED] leading-snug line-clamp-1 flex-1">
+            <h3 className="font-semibold text-sm text-slate-800 leading-snug line-clamp-1 flex-1">
               {data.titulo || "Sem título"}
             </h3>
 
@@ -148,7 +148,7 @@ export const CanvasNodeCard: React.FC<CanvasNodeCardProps> = ({
                   e.stopPropagation();
                   onOpenInEditor(node.id);
                 }}
-                className="p-1 rounded text-[#9DB2BF] hover:text-white hover:bg-[#526D82]/50 transition-colors"
+                className="p-1 rounded text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
                 title="Abrir no Editor"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -159,7 +159,7 @@ export const CanvasNodeCard: React.FC<CanvasNodeCardProps> = ({
                   e.stopPropagation();
                   onEditNota(node);
                 }}
-                className="p-1 rounded text-[#9DB2BF] hover:text-white hover:bg-[#526D82]/50 transition-colors"
+                className="p-1 rounded text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
                 title="Editar"
               >
                 <Edit3 className="w-3.5 h-3.5" />
@@ -170,7 +170,7 @@ export const CanvasNodeCard: React.FC<CanvasNodeCardProps> = ({
                   e.stopPropagation();
                   onDeleteNota(node);
                 }}
-                className="p-1 rounded text-[#9DB2BF] hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                className="p-1 rounded text-slate-500 hover:text-red-500 hover:bg-red-50 transition-colors"
                 title="Excluir"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -178,15 +178,15 @@ export const CanvasNodeCard: React.FC<CanvasNodeCardProps> = ({
             </div>
           </div>
 
-          <p className="text-xs text-[#9DB2BF] line-clamp-2 leading-relaxed">
+          <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
             {contentPreview}
           </p>
         </div>
 
-        <div className="flex items-center justify-between text-[11px] text-[#526D82] pt-2 border-t border-[#526D82]/20 mt-auto">
+        <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-200 mt-auto">
           <div className="flex items-center gap-1 max-w-[60%]">
             <Tag className="w-3 h-3 shrink-0" style={{ color }} />
-            <span className="truncate text-[#9DB2BF]">{tema?.nome || "Geral"}</span>
+            <span className="truncate text-slate-600">{tema?.nome || "Geral"}</span>
           </div>
 
           <div className="flex items-center gap-2">

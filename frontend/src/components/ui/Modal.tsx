@@ -39,31 +39,27 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop escuro neutro */}
       <div
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
-      {/* Card do Modal */}
       <div
-        className={`relative w-full ${maxWidthClasses[maxWidth]} rounded-xl bg-[#27374D] border border-[#526D82] p-5 shadow-2xl z-10`}
+        className={`relative w-full ${maxWidthClasses[maxWidth]} rounded-xl bg-white border border-slate-200 p-5 shadow-xl z-10`}
       >
-        {/* Header */}
-        <div className="flex items-start justify-between pb-3 border-b border-[#526D82]/50">
+        <div className="flex items-start justify-between pb-3 border-b border-slate-200">
           <div>
-            <h3 className="text-base font-bold text-[#DDE6ED] tracking-tight">{title}</h3>
-            {subtitle && <p className="text-xs text-[#9DB2BF] mt-0.5">{subtitle}</p>}
+            <h3 className="text-base font-bold text-slate-800 tracking-tight">{title}</h3>
+            {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-md text-[#9DB2BF] hover:text-[#DDE6ED] hover:bg-[#526D82]/40 transition-colors"
+            className="p-1 rounded-md text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Conteúdo */}
         <div className="pt-4">{children}</div>
       </div>
     </div>

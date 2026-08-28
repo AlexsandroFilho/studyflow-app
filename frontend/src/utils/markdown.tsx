@@ -42,7 +42,7 @@ export function renderInlineMarkdown(text: string, keyPrefix: string): React.Rea
       nodes.push(
         <code
           key={key}
-          className="font-mono text-[0.9em] bg-[#161B22] text-[#9DB2BF] px-1 py-0.5 rounded"
+          className="font-mono text-[0.9em] bg-slate-100 text-blue-700 px-1 py-0.5 rounded"
         >
           {match[1]}
         </code>

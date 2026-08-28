@@ -21,7 +21,7 @@ export const Textarea: React.FC<TextareaProps> = ({
       {label && (
         <label
           htmlFor={textareaId}
-          className="block text-[11px] font-semibold uppercase tracking-wider text-[#9DB2BF]"
+          className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500"
         >
           {label}
         </label>
@@ -29,9 +29,9 @@ export const Textarea: React.FC<TextareaProps> = ({
       <textarea
         id={textareaId}
         rows={rows}
-        className={`w-full rounded-lg bg-[#161B22] border ${
-          error ? "border-red-500" : "border-[#526D82]"
-        } px-3.5 py-2 text-sm text-[#DDE6ED] placeholder-[#526D82] focus:border-[#9DB2BF] focus:outline-none transition-colors resize-none ${className}`}
+        className={`w-full rounded-lg bg-slate-50 border ${
+          error ? "border-red-500" : "border-slate-200"
+        } px-3.5 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none transition-colors resize-none ${className}`}
         {...props}
       />
       {error && <p className="text-[11px] text-red-400">{error}</p>}

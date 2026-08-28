@@ -72,7 +72,7 @@ namespace StudyFlow.Api.Migrations
                     b.Property<string>("ResumoIA")
                         .HasColumnType("text");
 
-                    b.Property<int>("TemaId")
+                    b.Property<int?>("TemaId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Titulo")
@@ -80,9 +80,14 @@ namespace StudyFlow.Api.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("TemaId");
+
+                    b.HasIndex("UsuarioId");
 
                     b.ToTable("notas", (string)null);
                 });
@@ -107,9 +112,48 @@ namespace StudyFlow.Api.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("UsuarioId");
+
                     b.ToTable("temas", (string)null);
+                });
+
+            modelBuilder.Entity("StudyFlow.Api.Domain.Entities.Usuario", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("SenhaHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasDatabaseName("IX_usuarios_Email");
+
+                    b.ToTable("usuarios", (string)null);
                 });
 
             modelBuilder.Entity("StudyFlow.Api.Domain.Entities.ConexaoNota", b =>
@@ -136,10 +180,28 @@ namespace StudyFlow.Api.Migrations
                     b.HasOne("StudyFlow.Api.Domain.Entities.Tema", "Tema")
                         .WithMany("Notas")
                         .HasForeignKey("TemaId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("StudyFlow.Api.Domain.Entities.Usuario", "Usuario")
+                        .WithMany("Notas")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Tema");
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("StudyFlow.Api.Domain.Entities.Tema", b =>
+                {
+                    b.HasOne("StudyFlow.Api.Domain.Entities.Usuario", "Usuario")
+                        .WithMany("Temas")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("StudyFlow.Api.Domain.Entities.Nota", b =>
@@ -152,6 +214,13 @@ namespace StudyFlow.Api.Migrations
             modelBuilder.Entity("StudyFlow.Api.Domain.Entities.Tema", b =>
                 {
                     b.Navigation("Notas");
+                });
+
+            modelBuilder.Entity("StudyFlow.Api.Domain.Entities.Usuario", b =>
+                {
+                    b.Navigation("Notas");
+
+                    b.Navigation("Temas");
                 });
 #pragma warning restore 612, 618
         }
