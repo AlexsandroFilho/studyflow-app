@@ -5,12 +5,12 @@ import { Textarea } from "../ui/Textarea";
 import { Button } from "../ui/Button";
 import { Tema } from "../../types/tema";
 import { Nota, NotaRequestDto, NotaUpdateDto } from "../../types/nota";
+import { getApiErrorMessage } from "../../utils/apiError";
 
 interface CreateNotaModalProps {
   isOpen: boolean;
   onClose: () => void;
   temas: Tema[];
-  selectedTemaId: number | null;
   editingNota?: Nota | null;
   onSubmitCreate: (dto: NotaRequestDto) => Promise<void>;
   onSubmitUpdate: (id: number, dto: NotaUpdateDto) => Promise<void>;
@@ -20,14 +20,13 @@ export const CreateNotaModal: React.FC<CreateNotaModalProps> = ({
   isOpen,
   onClose,
   temas,
-  selectedTemaId,
   editingNota,
   onSubmitCreate,
   onSubmitUpdate,
 }) => {
   const [titulo, setTitulo] = useState("");
   const [conteudo, setConteudo] = useState("");
-  const [temaId, setTemaId] = useState<number>(1);
+  const [temaId, setTemaId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,10 +38,10 @@ export const CreateNotaModal: React.FC<CreateNotaModalProps> = ({
     } else {
       setTitulo("");
       setConteudo("");
-      setTemaId(selectedTemaId || (temas.length > 0 ? temas[0].id : 1));
+      setTemaId(null);
     }
     setError(null);
-  }, [editingNota, isOpen, selectedTemaId, temas]);
+  }, [editingNota, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +72,7 @@ export const CreateNotaModal: React.FC<CreateNotaModalProps> = ({
       }
       onClose();
     } catch (err: any) {
-      setError(err.message || "Erro ao salvar nota.");
+      setError(getApiErrorMessage(err, "Erro ao salvar nota."));
     } finally {
       setLoading(false);
     }
@@ -113,10 +112,11 @@ export const CreateNotaModal: React.FC<CreateNotaModalProps> = ({
             Tema de Estudo
           </label>
           <select
-            value={temaId}
-            onChange={(e) => setTemaId(Number(e.target.value))}
+            value={temaId ?? ""}
+            onChange={(e) => setTemaId(e.target.value ? Number(e.target.value) : null)}
             className="w-full rounded-lg bg-slate-50 border border-slate-200 px-3.5 py-2 text-sm text-slate-800 focus:border-blue-500 focus:outline-none transition-colors cursor-pointer"
           >
+            <option value="">Sem tema</option>
             {temas.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.nome}

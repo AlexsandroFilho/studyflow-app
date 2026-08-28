@@ -6,8 +6,8 @@ import { SaveStatus } from "../../hooks/useAutoSave";
 interface EditorHeaderProps {
   titulo: string;
   onTituloChange: (titulo: string) => void;
-  temaId: number;
-  onTemaChange: (temaId: number) => void;
+  temaId: number | null;
+  onTemaChange: (temaId: number | null) => void;
   temas: Tema[];
   saveStatus: SaveStatus;
   editorMode: "split" | "edit" | "preview";
@@ -121,10 +121,11 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
         />
 
         <select
-          value={temaId}
-          onChange={(e) => onTemaChange(Number(e.target.value))}
+          value={temaId ?? ""}
+          onChange={(e) => onTemaChange(e.target.value ? Number(e.target.value) : null)}
           className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-500 cursor-pointer"
         >
+          <option value="">Sem tema</option>
           {temas.map((t) => (
             <option key={t.id} value={t.id}>
               {t.nome}

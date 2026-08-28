@@ -36,8 +36,8 @@ const THEME_COLORS = [
   "#D9C8F7",
 ];
 
-export function getThemeColor(temaId: number): string {
-  const index = Math.abs(temaId) % THEME_COLORS.length;
+export function getThemeColor(temaId: number | null): string {
+  const index = temaId === null ? 0 : Math.abs(temaId) % THEME_COLORS.length;
   return THEME_COLORS[index];
 }
 
@@ -68,7 +68,7 @@ export function useCanvas(
       const prevMap = new Map(prevNodes.map((n) => [n.id, n.position]));
       const savedPositions = getSavedPositions();
 
-      const temaGroups = new Map<number, Nota[]>();
+      const temaGroups = new Map<number | null, Nota[]>();
       notas.forEach((n) => {
         const list = temaGroups.get(n.temaId) || [];
         list.push(n);

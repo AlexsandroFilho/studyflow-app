@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "../../contexts/AuthContext";
 import { registroSchema, RegistroFormData } from "../../schemas/registroSchema";
+import { getApiErrorMessage } from "../../utils/apiError";
 
 interface RegistroFormProps {
   onSuccess: () => void;
@@ -27,7 +28,7 @@ export const RegistroForm: React.FC<RegistroFormProps> = ({ onSuccess }) => {
       await registerUser(data.nome, data.email, data.senha, data.confirmacaoSenha);
       onSuccess();
     } catch (error: any) {
-      setRequestError(error.response?.data?.mensagem || "Não foi possível criar sua conta.");
+      setRequestError(getApiErrorMessage(error, "Não foi possível criar sua conta."));
     }
   };
 

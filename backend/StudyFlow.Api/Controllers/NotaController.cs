@@ -47,7 +47,7 @@ namespace StudyFlow.Api.Controllers
         {
             var notaCriada = await _notaService.CriarAsync(dto);
             if (notaCriada == null)
-                return BadRequest(new { mensagem = $"Não foi possível criar a nota. O TemaId {dto.TemaId} não existe." });
+                return BadRequest(new { mensagem = "O tema informado não existe ou não pertence ao usuário autenticado." });
 
             return CreatedAtAction(nameof(ObterPorId), new { id = notaCriada.Id }, notaCriada);
         }

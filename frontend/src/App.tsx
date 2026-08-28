@@ -249,7 +249,6 @@ export function App() {
           setIsNotaModalOpen(false);
         }}
         temas={temas}
-        selectedTemaId={selectedTemaId}
         editingNota={editingNota}
         onSubmitCreate={async (dto) => {
           await criarNota(dto);

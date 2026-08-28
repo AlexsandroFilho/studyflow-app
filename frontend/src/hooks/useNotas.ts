@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Nota, NotaRequestDto, NotaUpdateDto } from "../types/nota";
 import { notaService } from "../services/notaService";
+import { getApiErrorMessage } from "../utils/apiError";
 
 export function useNotas(selectedTemaId: number | null) {
   const [notas, setNotas] = useState<Nota[]>([]);
@@ -20,7 +21,7 @@ export function useNotas(selectedTemaId: number | null) {
         setNotas(data);
       }
     } catch (err: any) {
-      setError(err.response?.data?.mensagem || err.message || "Erro ao carregar notas.");
+      setError(getApiErrorMessage(err, "Erro ao carregar notas."));
     } finally {
       setLoading(false);
     }
@@ -37,7 +38,7 @@ export function useNotas(selectedTemaId: number | null) {
       setNotas((prev) => [nova, ...prev]);
       return nova;
     } catch (err: any) {
-      const msg = err.response?.data?.mensagem || err.message || "Erro ao criar nota.";
+      const msg = getApiErrorMessage(err, "Erro ao criar nota.");
       setError(msg);
       throw new Error(msg);
     }
@@ -57,7 +58,7 @@ export function useNotas(selectedTemaId: number | null) {
         setActiveNota((prev) => (prev ? { ...prev, ...dto } : null));
       }
     } catch (err: any) {
-      const msg = err.response?.data?.mensagem || err.message || "Erro ao atualizar nota.";
+      const msg = getApiErrorMessage(err, "Erro ao atualizar nota.");
       setError(msg);
       throw new Error(msg);
     }
@@ -74,7 +75,7 @@ export function useNotas(selectedTemaId: number | null) {
         setActiveNota(null);
       }
     } catch (err: any) {
-      const msg = err.response?.data?.mensagem || err.message || "Erro ao deletar nota.";
+      const msg = getApiErrorMessage(err, "Erro ao deletar nota.");
       setError(msg);
       throw new Error(msg);
     }

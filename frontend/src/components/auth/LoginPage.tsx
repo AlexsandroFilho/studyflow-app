@@ -3,6 +3,7 @@ import { Network, ArrowRight, LoaderCircle } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { RegistroForm } from "./RegistroForm";
+import { getApiErrorMessage } from "../../utils/apiError";
 
 export const LoginPage: React.FC = () => {
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -23,7 +24,7 @@ export const LoginPage: React.FC = () => {
       await login(email.trim(), senha);
       navigate(destination, { replace: true });
     } catch (requestError: any) {
-      setError(requestError.response?.data?.mensagem || "Não foi possível concluir a autenticação.");
+      setError(getApiErrorMessage(requestError, "Não foi possível concluir a autenticação."));
     } finally {
       setIsSubmitting(false);
     }

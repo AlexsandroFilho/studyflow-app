@@ -1,6 +1,6 @@
 export interface Nota {
   id: number;
-  temaId: number;
+  temaId: number | null;
   titulo: string;
   conteudo: string;
   resumoIa?: string | null;
@@ -12,14 +12,14 @@ export interface Nota {
 export interface NotaRequestDto {
   titulo: string;
   conteudo: string;
-  temaId: number;
+  temaId: number | null;
   resumoIa?: string | null;
 }
 
 export interface NotaUpdateDto {
   titulo: string;
   conteudo: string;
-  temaId: number;
+  temaId: number | null;
   resumoIa?: string | null;
 }
 
@@ -29,13 +29,13 @@ export interface NotaResponseDto {
   conteudo: string;
   resumoIa?: string | null;
   dataCriacao: string;
-  temaId: number;
+  temaId: number | null;
   nomeTema?: string | null;
 }
 
 export interface CreateNotaDto {
   titulo: string;
   conteudo: string;
-  temaId: number;
+  temaId: number | null;
   resumoIa?: string | null;
 }

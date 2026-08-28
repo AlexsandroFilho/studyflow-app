@@ -34,7 +34,7 @@ export const ObsidianEditor: React.FC<ObsidianEditorProps> = ({
   }, [nota.id]);
 
   const handleAutoSave = useCallback(
-    async (val: { titulo: string; conteudo: string; tema_id: number }) => {
+    async (val: { titulo: string; conteudo: string; tema_id: number | null }) => {
       if (!val.titulo.trim() || !val.conteudo.trim()) return;
       await onUpdateNota(nota.id, {
         titulo: val.titulo,
