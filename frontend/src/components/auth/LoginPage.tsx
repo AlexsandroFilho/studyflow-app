@@ -8,6 +8,7 @@ export const LoginPage: React.FC = () => {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [confirmacaoSenha, setConfirmacaoSenha] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login, register } = useAuth();
@@ -21,7 +22,7 @@ export const LoginPage: React.FC = () => {
     setIsSubmitting(true);
     try {
       if (mode === "login") await login(email.trim(), senha);
-      else await register(nome.trim(), email.trim(), senha);
+      else await register(nome.trim(), email.trim(), senha, confirmacaoSenha);
       navigate(destination, { replace: true });
     } catch (requestError: any) {
       setError(requestError.response?.data?.mensagem || "Não foi possível concluir a autenticação.");
@@ -52,7 +53,8 @@ export const LoginPage: React.FC = () => {
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           {mode === "register" && <label className="block text-sm font-medium text-slate-700">Nome<input value={nome} onChange={(event) => setNome(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" required minLength={2} /></label>}
           <label className="block text-sm font-medium text-slate-700">E-mail<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" required /></label>
-          <label className="block text-sm font-medium text-slate-700">Senha<input type="password" value={senha} onChange={(event) => setSenha(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" required minLength={6} /></label>
+          <label className="block text-sm font-medium text-slate-700">Senha<input type="password" value={senha} onChange={(event) => setSenha(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" required minLength={8} /></label>
+          {mode === "register" && <label className="block text-sm font-medium text-slate-700">Confirmar senha<input type="password" value={confirmacaoSenha} onChange={(event) => setConfirmacaoSenha(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" required /></label>}
           {error && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-600">{error}</p>}
           <button type="submit" disabled={isSubmitting} className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60">
             {isSubmitting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}

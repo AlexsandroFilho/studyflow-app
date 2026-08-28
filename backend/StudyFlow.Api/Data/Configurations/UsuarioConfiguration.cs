@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using StudyFlow.Api.Domain.Entities;
+using StudyFlow.Api.Domain.Enums;
 
 namespace StudyFlow.Api.Data.Configurations
 {
@@ -28,6 +29,11 @@ namespace StudyFlow.Api.Data.Configurations
 
             builder.Property(u => u.DataCriacao)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            builder.Property(u => u.Role)
+                .HasConversion<int>()
+                .HasDefaultValue(UserRole.User)
+                .IsRequired();
         }
     }
 }

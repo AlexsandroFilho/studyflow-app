@@ -5,6 +5,8 @@ using StudyFlow.Api.Domain.Interfaces.Notas;
 using StudyFlow.Api.Domain.Interfaces.Temas;
 using StudyFlow.Api.Domain.Interfaces.Usuarios;
 using StudyFlow.Api.Services;
+using StudyFlow.Api.Validators;
+using FluentValidation;
 
 namespace StudyFlow.Api.Configurations;
 
@@ -22,6 +24,7 @@ public static class ServiceConfiguration
         services.AddScoped<INotaService, NotaService>();
         services.AddScoped<IConexaoNotaRepository, ConexaoNotaRepository>();
         services.AddScoped<IConexaoNotaService, ConexaoNotaService>();
+        services.AddValidatorsFromAssemblyContaining<RegistroRequestValidator>();
 
         return services;
     }

@@ -1,9 +1,10 @@
 namespace StudyFlow.Api.DTOs
 {
-    public record RegisterRequest(
+    public record RegistroRequest(
         string Nome,
         string Email,
-        string Senha);
+        string Senha,
+        string ConfirmacaoSenha);
 
     public record LoginRequest(
         string Email,
@@ -13,5 +14,6 @@ namespace StudyFlow.Api.DTOs
         string Token,
         Guid UserId,
         string Nome,
-        string Email);
+        string Email,
+        string Role);
 }

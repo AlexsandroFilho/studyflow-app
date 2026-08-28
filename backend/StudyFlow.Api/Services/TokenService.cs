@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using StudyFlow.Api.Configurations;
+using StudyFlow.Api.Domain.Enums;
 using StudyFlow.Api.Domain.Interfaces.Auth;
 
 namespace StudyFlow.Api.Services
@@ -29,10 +30,13 @@ namespace StudyFlow.Api.Services
             return GenerateToken(
                 userId,
                 claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value ?? string.Empty,
-                claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? string.Empty);
+                claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? string.Empty,
+                Enum.TryParse<UserRole>(claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value, out var role)
+                    ? role
+                    : UserRole.User);
         }
 
-        public string GenerateToken(Guid userId, string email, string name)
+            public string GenerateToken(Guid userId, string email, string name, UserRole role)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -45,6 +49,7 @@ namespace StudyFlow.Api.Services
                 new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
                 new Claim(ClaimTypes.Email, email),
                 new Claim(ClaimTypes.Name, name),
+                new Claim(ClaimTypes.Role, role.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

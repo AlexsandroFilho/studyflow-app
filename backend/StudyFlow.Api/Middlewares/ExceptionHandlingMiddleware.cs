@@ -1,6 +1,7 @@
 
 
 using System.Text.Json;
+using FluentValidation;
 
 namespace StudyFlow.Api.Middlewares
 {
@@ -38,6 +39,7 @@ namespace StudyFlow.Api.Middlewares
             var statusCode = exception switch
             {
                 UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+                ValidationException => StatusCodes.Status400BadRequest,
                 InvalidOperationException => StatusCodes.Status400BadRequest,
                 KeyNotFoundException => StatusCodes.Status404NotFound,
                 _ => StatusCodes.Status500InternalServerError
@@ -45,7 +47,9 @@ namespace StudyFlow.Api.Middlewares
 
             var response = new ErrorResponse(
                 StatusCode: statusCode,
-                Message: statusCode == StatusCodes.Status500InternalServerError
+                Message: exception is ValidationException validationException
+                    ? string.Join(" ", validationException.Errors.Select(error => error.ErrorMessage).Distinct())
+                    : statusCode == StatusCodes.Status500InternalServerError
                     ? "Ocorreu um erro interno no servidor."
                     : exception.Message,
                 Details: _environment.IsDevelopment() ? exception.StackTrace : null,

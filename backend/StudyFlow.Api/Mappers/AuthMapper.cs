@@ -1,17 +1,19 @@
 using StudyFlow.Api.Domain.Entities;
+using StudyFlow.Api.Domain.Enums;
 using StudyFlow.Api.DTOs;
 
 namespace StudyFlow.Api.Mappers
 {
     public static class AuthMapper
     {
-        public static Usuario ToEntity(this RegisterRequest request, string senhaHash)
+        public static Usuario ToEntity(this RegistroRequest request, string senhaHash)
         {
             return new Usuario
             {
                 Nome = request.Nome.Trim(),
                 Email = request.Email.Trim(),
-                SenhaHash = senhaHash
+                SenhaHash = senhaHash,
+                Role = UserRole.User
             };
         }
 
@@ -21,7 +23,8 @@ namespace StudyFlow.Api.Mappers
                 Token: token,
                 UserId: usuario.Id,
                 Nome: usuario.Nome,
-                Email: usuario.Email);
+                Email: usuario.Email,
+                Role: usuario.Role.ToString());
         }
     }
 }

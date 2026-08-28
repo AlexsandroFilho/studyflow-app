@@ -4,7 +4,7 @@ namespace StudyFlow.Api.Domain.Interfaces.Auth
 {
     public interface IAuthService
     {
-        Task<AuthResponse> RegisterAsync(RegisterRequest request);
+        Task<AuthResponse> RegisterAsync(RegistroRequest request);
         Task<AuthResponse?> LoginAsync(LoginRequest request);
     }
 }

@@ -20,7 +20,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, senha: string) => Promise<void>;
-  register: (nome: string, email: string, senha: string) => Promise<void>;
+  register: (nome: string, email: string, senha: string, confirmacaoSenha: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -99,8 +99,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     saveSession(data);
   };
 
-  const register = async (nome: string, email: string, senha: string) => {
-    const { data } = await api.post<AuthResponse>("/auth/register", { nome, email, senha });
+  const register = async (nome: string, email: string, senha: string, confirmacaoSenha: string) => {
+    const { data } = await api.post<AuthResponse>("/auth/register", { nome, email, senha, confirmacaoSenha });
     saveSession(data);
   };
 

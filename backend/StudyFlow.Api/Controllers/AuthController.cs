@@ -17,7 +17,7 @@ namespace StudyFlow.Api.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request)
+        public async Task<ActionResult<AuthResponse>> Register([FromBody] RegistroRequest request)
         {
             var response = await _authService.RegisterAsync(request);
             return Ok(response);
