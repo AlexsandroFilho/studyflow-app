@@ -2,16 +2,15 @@ import React, { FormEvent, useState } from "react";
 import { Network, ArrowRight, LoaderCircle } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { RegistroForm } from "./RegistroForm";
 
 export const LoginPage: React.FC = () => {
   const [mode, setMode] = useState<"login" | "register">("login");
-  const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [confirmacaoSenha, setConfirmacaoSenha] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login, register } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const destination = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname || "/";
@@ -21,8 +20,7 @@ export const LoginPage: React.FC = () => {
     setError("");
     setIsSubmitting(true);
     try {
-      if (mode === "login") await login(email.trim(), senha);
-      else await register(nome.trim(), email.trim(), senha, confirmacaoSenha);
+      await login(email.trim(), senha);
       navigate(destination, { replace: true });
     } catch (requestError: any) {
       setError(requestError.response?.data?.mensagem || "Não foi possível concluir a autenticação.");
@@ -32,8 +30,9 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-100 px-4 py-8">
-      <section className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-7 shadow-xl shadow-slate-300/40">
+    <main className="h-screen overflow-y-auto bg-slate-100 px-4 py-8">
+      <div className="flex min-h-full items-start justify-center sm:items-center">
+      <section className="my-auto w-full max-w-md shrink-0 rounded-2xl border border-slate-200 bg-white p-7 shadow-xl shadow-slate-300/40">
         <div className="flex flex-col items-center text-center">
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
             <Network className="h-6 w-6 text-white" />
@@ -50,18 +49,27 @@ export const LoginPage: React.FC = () => {
           ))}
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          {mode === "register" && <label className="block text-sm font-medium text-slate-700">Nome<input value={nome} onChange={(event) => setNome(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" required minLength={2} /></label>}
-          <label className="block text-sm font-medium text-slate-700">E-mail<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" required /></label>
-          <label className="block text-sm font-medium text-slate-700">Senha<input type="password" value={senha} onChange={(event) => setSenha(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" required minLength={8} /></label>
-          {mode === "register" && <label className="block text-sm font-medium text-slate-700">Confirmar senha<input type="password" value={confirmacaoSenha} onChange={(event) => setConfirmacaoSenha(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" required /></label>}
-          {error && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-600">{error}</p>}
-          <button type="submit" disabled={isSubmitting} className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60">
-            {isSubmitting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
-            {mode === "login" ? "Entrar no StudyFlow" : "Criar minha conta"}
-          </button>
-        </form>
+        {mode === "login" ? (
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <label className="block text-sm font-medium text-slate-700">
+              E-mail
+              <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" required autoComplete="email" />
+            </label>
+            <label className="block text-sm font-medium text-slate-700">
+              Senha
+              <input type="password" value={senha} onChange={(event) => setSenha(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" required autoComplete="current-password" />
+            </label>
+            {error && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-600">{error}</p>}
+            <button type="submit" disabled={isSubmitting} className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60">
+              {isSubmitting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+              Entrar no StudyFlow
+            </button>
+          </form>
+        ) : (
+          <RegistroForm onSuccess={() => navigate(destination, { replace: true })} />
+        )}
       </section>
+      </div>
     </main>
   );
 };
