@@ -7,12 +7,13 @@ using StudyFlow.Api.Domain.Interfaces.Usuarios;
 using StudyFlow.Api.Services;
 using StudyFlow.Api.Validators;
 using FluentValidation;
+using StudyFlow.Api.Domain.Interfaces.Rag;
 
 namespace StudyFlow.Api.Configurations;
 
 public static class ServiceConfiguration
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ITokenService, TokenService>();
@@ -24,8 +25,32 @@ public static class ServiceConfiguration
         services.AddScoped<INotaService, NotaService>();
         services.AddScoped<IConexaoNotaRepository, ConexaoNotaRepository>();
         services.AddScoped<IConexaoNotaService, ConexaoNotaService>();
+        services.AddScoped<IFonteAnatomiaRepository, FonteAnatomiaRepository>();
+        services.AddScoped<IAnatomiaChunkRepository, AnatomiaChunkRepository>();
+        services.AddScoped<IRevisaoNotaRepository, RevisaoNotaRepository>();
+        services.AddScoped<IContextoGrafoNotasRepository, ContextoGrafoNotasRepository>();
+        services.AddScoped<IContextoGrafoNotasService, ContextoGrafoNotasService>();
+        services.AddScoped<IEmbeddingService, GeminiEmbeddingService>();
+        services.AddScoped<IBuscaContextoAnatomia, BuscaContextoAnatomiaPostgres>();
+        services.AddScoped<IRevisorAnatomia, GeminiRevisorAnatomia>();
+        services.AddScoped<IRevisaoNotaService, RevisaoNotaService>();
+        services.AddScoped<IIngestaoAnatomiaService, IngestaoAnatomiaService>();
+        services.AddHttpClient<IModeloIaClient, GeminiModelClient>(client =>
+        {
+            client.BaseAddress = new Uri("https://generativelanguage.googleapis.com/");
+        });
+        RegistrarArmazenamentoFonte(services, configuration);
         services.AddValidatorsFromAssemblyContaining<RegistroRequestValidator>();
 
         return services;
+    }
+
+    private static void RegistrarArmazenamentoFonte(IServiceCollection services, IConfiguration configuration)
+    {
+        var settings = configuration.GetSection(SupabaseStorageSettings.SectionName).Get<SupabaseStorageSettings>() ?? new SupabaseStorageSettings();
+        if (!string.IsNullOrWhiteSpace(settings.Url) && !string.IsNullOrWhiteSpace(settings.ServiceRoleKey))
+            services.AddScoped<IArmazenamentoFonteAnatomia, ArmazenamentoFonteSupabase>();
+        else
+            services.AddScoped<IArmazenamentoFonteAnatomia, ArmazenamentoFonteLocal>();
     }
 }

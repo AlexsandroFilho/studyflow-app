@@ -24,4 +24,5 @@ appsettings.*.json
 *.db
 *.db-shm
 *.db-wal
+backend/StudyFlow.Api/App_Data/
 .DS_Store

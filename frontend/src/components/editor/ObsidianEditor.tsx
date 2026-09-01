@@ -4,7 +4,10 @@ import { Tema } from "../../types/tema";
 import { EditorHeader } from "./EditorHeader";
 import { MarkdownPreview } from "./MarkdownPreview";
 import { useAutoSave } from "../../hooks/useAutoSave";
-import { Bold, Italic, List, Heading, Quote, Code } from "lucide-react";
+import { Bold, Italic, List, Heading, Quote, Code, Sparkles, Loader2 } from "lucide-react";
+import { revisaoService } from "../../services/revisaoService";
+import { RevisaoNota } from "../../types/revisao";
+import { ReviewPanel } from "./ReviewPanel";
 
 interface ObsidianEditorProps {
   nota: Nota;
@@ -25,6 +28,9 @@ export const ObsidianEditor: React.FC<ObsidianEditorProps> = ({
   const [conteudo, setConteudo] = useState(nota.conteudo);
   const [temaId, setTemaId] = useState(nota.temaId);
   const [editorMode, setEditorMode] = useState<"split" | "edit" | "preview">("split");
+  const [revisao, setRevisao] = useState<RevisaoNota | null>(null);
+  const [revisando, setRevisando] = useState(false);
+  const [erroRevisao, setErroRevisao] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -67,6 +73,20 @@ export const ObsidianEditor: React.FC<ObsidianEditorProps> = ({
 
   const wordCount = conteudo.trim() ? conteudo.trim().split(/\s+/).length : 0;
 
+  const handleReview = async () => {
+    if (!titulo.trim() || !conteudo.trim()) return;
+    setRevisando(true);
+    setErroRevisao(null);
+    try {
+      await onUpdateNota(nota.id, { titulo, conteudo, temaId });
+      setRevisao(await revisaoService.criar(nota.id));
+    } catch (error: any) {
+      setErroRevisao(error?.response?.data?.message || "Não foi possível revisar esta nota agora.");
+    } finally {
+      setRevisando(false);
+    }
+  };
+
   const toolbarItems = [
     { icon: <Heading className="w-3.5 h-3.5" />, action: () => insertMarkdown("## "), title: "Título" },
     { icon: <Bold className="w-3.5 h-3.5" />, action: () => insertMarkdown("**", "**"), title: "Negrito" },
@@ -103,6 +123,13 @@ export const ObsidianEditor: React.FC<ObsidianEditorProps> = ({
             {item.icon}
           </button>
         ))}
+        <div className="ml-auto flex items-center gap-2">
+          {erroRevisao && <span className="text-xs text-red-600">{erroRevisao}</span>}
+          <button onClick={handleReview} disabled={revisando || !conteudo.trim()} className="flex items-center gap-1.5 rounded-md bg-blue-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-60" title="Revisar nota com IA">
+            {revisando ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+            {revisando ? "Revisando..." : "Revisar com IA"}
+          </button>
+        </div>
       </div>
 
       {/* Área de Edição / Visualização */}
@@ -128,6 +155,7 @@ export const ObsidianEditor: React.FC<ObsidianEditorProps> = ({
             <MarkdownPreview content={conteudo} />
           </div>
         )}
+        {revisao && <ReviewPanel revisao={revisao} onClose={() => setRevisao(null)} />}
       </div>
 
       {/* Rodapé */}
