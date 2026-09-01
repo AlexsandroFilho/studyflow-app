@@ -4,7 +4,7 @@
 
 Mantenha os segredos fora do repositório. Configure `GEMINI_API_KEY` no ambiente ou inclua `Ai:GeminiApiKey` apenas em `appsettings.Development.json`.
 
-O projeto usa `gemini-embedding-001` com 1536 dimensões, mantendo compatibilidade com a coluna vetorial existente, e `gemini-2.5-flash-lite` para revisões. Os modelos podem ser trocados nas configurações `Ai:EmbeddingModel` e `Ai:ChatModel`.
+O projeto usa `gemini-embedding-001` com 1536 dimensões, mantendo compatibilidade com a coluna vetorial existente, e `gemini-3.5-flash-lite` para revisões. Os modelos podem ser trocados nas configurações `Ai:EmbeddingModel` e `Ai:ChatModel`.
 
 Para usar Supabase Storage, configure também `SupabaseStorage:Url` e `SupabaseStorage:ServiceRoleKey` em `appsettings.Development.json`. Sem esses valores, os PDFs são copiados para `App_Data/fontes-anatomia` durante o desenvolvimento.
 

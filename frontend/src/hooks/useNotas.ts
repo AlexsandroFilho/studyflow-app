@@ -44,7 +44,7 @@ export function useNotas(selectedTemaId: number | null) {
     }
   };
 
-  const atualizarNota = async (id: number, dto: NotaUpdateDto): Promise<void> => {
+  const atualizarNota = useCallback(async (id: number, dto: NotaUpdateDto): Promise<void> => {
     setError(null);
     try {
       await notaService.atualizar(id, dto);
@@ -54,15 +54,15 @@ export function useNotas(selectedTemaId: number | null) {
           ? updated.filter((n) => n.id !== id)
           : updated;
       });
-      if (activeNota && activeNota.id === id) {
-        setActiveNota((prev) => (prev ? { ...prev, ...dto } : null));
-      }
+      setActiveNota((prev) =>
+        prev?.id === id ? { ...prev, ...dto } : prev
+      );
     } catch (err: any) {
       const msg = getApiErrorMessage(err, "Erro ao atualizar nota.");
       setError(msg);
       throw new Error(msg);
     }
-  };
+  }, [selectedTemaId]);
 
   const atualizarParcialNota = atualizarNota;
 

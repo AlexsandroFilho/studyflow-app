@@ -25,4 +25,6 @@ appsettings.*.json
 *.db-shm
 *.db-wal
 backend/StudyFlow.Api/App_Data/
+frontend/.agents/
+frontend/skills-lock.json
 .DS_Store

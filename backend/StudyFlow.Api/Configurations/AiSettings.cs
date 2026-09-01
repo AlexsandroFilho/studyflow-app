@@ -4,7 +4,7 @@ public sealed class AiSettings
 {
     public const string SectionName = "Ai";
     public string? GeminiApiKey { get; init; }
-    public string ChatModel { get; init; } = "gemini-2.5-flash-lite";
+    public string ChatModel { get; init; } = "gemini-3.5-flash-lite";
     public string EmbeddingModel { get; init; } = "gemini-embedding-001";
     public int EmbeddingDimensions { get; init; } = 1536;
     public int IntervaloMinimoEmbeddingMs { get; init; } = 700;

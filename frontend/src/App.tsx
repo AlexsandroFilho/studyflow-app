@@ -229,6 +229,7 @@ export function App() {
             />
           ) : activeNota ? (
             <ObsidianEditor
+              key={activeNota.id}
               nota={activeNota}
               temas={temas}
               onUpdateNota={atualizarParcialNota}

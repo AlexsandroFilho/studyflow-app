@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Nota, NotaUpdateDto } from "../../types/nota";
 import { Tema } from "../../types/tema";
 import { EditorHeader } from "./EditorHeader";
@@ -8,6 +8,18 @@ import { Bold, Italic, List, Heading, Quote, Code, Sparkles, Loader2 } from "luc
 import { revisaoService } from "../../services/revisaoService";
 import { RevisaoNota } from "../../types/revisao";
 import { ReviewPanel } from "./ReviewPanel";
+
+function obterMensagemErroRevisao(error: any): string {
+  const mensagem = error?.response?.data?.message || error?.message || "";
+  const excedeuCota =
+    mensagem.includes("429") ||
+    mensagem.includes("RESOURCE_EXHAUSTED") ||
+    mensagem.toLowerCase().includes("quota exceeded");
+
+  return excedeuCota
+    ? "O limite temporário da IA foi atingido. Tente novamente mais tarde."
+    : "Não foi possível revisar esta nota agora. Tente novamente em alguns instantes.";
+}
 
 interface ObsidianEditorProps {
   nota: Nota;
@@ -51,11 +63,12 @@ export const ObsidianEditor: React.FC<ObsidianEditorProps> = ({
     [nota.id, onUpdateNota]
   );
 
-  const { status: saveStatus } = useAutoSave(
-    { titulo, conteudo, tema_id: temaId },
-    handleAutoSave,
-    700
+  const dadosParaSalvar = useMemo(
+    () => ({ titulo, conteudo, tema_id: temaId }),
+    [titulo, conteudo, temaId]
   );
+
+  const { status: saveStatus } = useAutoSave(dadosParaSalvar, handleAutoSave, 700);
 
   const insertMarkdown = (prefix: string, suffix = "") => {
     const textarea = textareaRef.current;
@@ -81,7 +94,7 @@ export const ObsidianEditor: React.FC<ObsidianEditorProps> = ({
       await onUpdateNota(nota.id, { titulo, conteudo, temaId });
       setRevisao(await revisaoService.criar(nota.id));
     } catch (error: any) {
-      setErroRevisao(error?.response?.data?.message || "Não foi possível revisar esta nota agora.");
+      setErroRevisao(obterMensagemErroRevisao(error));
     } finally {
       setRevisando(false);
     }
