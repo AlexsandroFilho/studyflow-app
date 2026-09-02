@@ -5,12 +5,13 @@ import { Tema } from "../../types/tema";
 import { CanvasNodeCard } from "./CanvasNodeCard";
 import { CanvasControls } from "./CanvasControls";
 import { EmptyState } from "../ui/EmptyState";
-import { Network, MousePointer2, Link2, X } from "lucide-react";
+import { Network, MousePointer2, Link2, X, FileText, Loader2 } from "lucide-react";
 
 interface CanvasBoardProps {
   nodes: CanvasNode[];
   edges: CanvasEdge[];
   temas: Tema[];
+  temaSelecionado: Tema | null;
   viewport: CanvasViewport;
   connectingSourceId: number | null;
   connectingSourceSide: AnchorSide | null;
@@ -29,12 +30,15 @@ interface CanvasBoardProps {
   onZoomOut: () => void;
   onResetView: () => void;
   onOpenCreateNota: () => void;
+  onGerarResumoTema?: () => void;
+  resumindoTema?: boolean;
   onDoubleClickCanvas?: (x: number, y: number) => void;
   onCancelConnecting?: () => void;
 }
 
 const CARD_WIDTH = 288;
 const CARD_HEIGHT = 160;
+const CONNECTION_GAP = 18;
 
 const getAnchorPoint = (node: CanvasNode, side: AnchorSide) => {
   if (side === "top") return { x: node.position.x + CARD_WIDTH / 2, y: node.position.y };
@@ -50,26 +54,34 @@ const getClosestAnchor = (source: CanvasNode, target: CanvasNode) => {
   const dx = tCenter.x - sCenter.x;
   const dy = tCenter.y - sCenter.y;
 
-  let x1 = source.position.x + CARD_WIDTH / 2;
-  let y1 = source.position.y + CARD_HEIGHT / 2;
-  let x2 = target.position.x + CARD_WIDTH / 2;
-  let y2 = target.position.y + CARD_HEIGHT / 2;
+  let sourceSide: AnchorSide;
+  let targetSide: AnchorSide;
 
   if (Math.abs(dx) > Math.abs(dy)) {
-    x1 = dx > 0 ? source.position.x + CARD_WIDTH : source.position.x;
-    x2 = dx > 0 ? target.position.x : target.position.x + CARD_WIDTH;
+    sourceSide = dx > 0 ? "right" : "left";
+    targetSide = dx > 0 ? "left" : "right";
   } else {
-    y1 = dy > 0 ? source.position.y + CARD_HEIGHT : source.position.y;
-    y2 = dy > 0 ? target.position.y : target.position.y + CARD_HEIGHT;
+    sourceSide = dy > 0 ? "bottom" : "top";
+    targetSide = dy > 0 ? "top" : "bottom";
   }
 
-  return { x1, y1, x2, y2 };
+  return { sourceSide, targetSide };
 };
+
+const moveFromAnchor = (point: Position, side: AnchorSide, distance: number): Position => {
+  if (side === "top") return { x: point.x, y: point.y - distance };
+  if (side === "right") return { x: point.x + distance, y: point.y };
+  if (side === "bottom") return { x: point.x, y: point.y + distance };
+  return { x: point.x - distance, y: point.y };
+};
+
+const isHorizontal = (side: AnchorSide) => side === "left" || side === "right";
 
 export const CanvasBoard: React.FC<CanvasBoardProps> = ({
   nodes,
   edges,
   temas,
+  temaSelecionado,
   viewport,
   connectingSourceId,
   connectingSourceSide,
@@ -88,37 +100,32 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
   onZoomOut,
   onResetView,
   onOpenCreateNota,
+  onGerarResumoTema,
+  resumindoTema = false,
   onDoubleClickCanvas,
   onCancelConnecting,
 }) => {
   const nodeMap = new Map<number, CanvasNode>(nodes.map((n) => [n.id, n]));
 
-  const calculateCurvePath = (
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    sourceSide?: AnchorSide,
-    targetSide?: AnchorSide
-  ) => {
-    const distance = Math.max(60, Math.min(180, Math.hypot(x2 - x1, y2 - y1) * 0.45));
-    const sourceVector = sourceSide === "top"
-      ? { x: 0, y: -1 }
-      : sourceSide === "right"
-      ? { x: 1, y: 0 }
-      : sourceSide === "bottom"
-      ? { x: 0, y: 1 }
-      : { x: -1, y: 0 };
-    const targetVector = targetSide === "top"
-      ? { x: 0, y: -1 }
-      : targetSide === "right"
-      ? { x: 1, y: 0 }
-      : targetSide === "bottom"
-      ? { x: 0, y: 1 }
-      : { x: -1, y: 0 };
-    const control1 = { x: x1 + sourceVector.x * distance, y: y1 + sourceVector.y * distance };
-    const control2 = { x: x2 + targetVector.x * distance, y: y2 + targetVector.y * distance };
-    return `M ${x1} ${y1} C ${control1.x} ${control1.y}, ${control2.x} ${control2.y}, ${x2} ${y2}`;
+  const calculateOrthogonalPath = (sourcePoint: Position, targetPoint: Position, sourceSide: AnchorSide, targetSide: AnchorSide) => {
+    const sourceExit = moveFromAnchor(sourcePoint, sourceSide, CONNECTION_GAP);
+    const targetEntry = moveFromAnchor(targetPoint, targetSide, CONNECTION_GAP);
+    const sourceHorizontal = isHorizontal(sourceSide);
+    const targetHorizontal = isHorizontal(targetSide);
+
+    if (sourceHorizontal && targetHorizontal)
+      return `M ${sourcePoint.x} ${sourcePoint.y} H ${sourceExit.x} V ${targetEntry.y} H ${targetPoint.x}`;
+
+    if (!sourceHorizontal && !targetHorizontal)
+      return `M ${sourcePoint.x} ${sourcePoint.y} V ${sourceExit.y} H ${targetEntry.x} V ${targetPoint.y}`;
+
+    if (sourceHorizontal) {
+      const meioY = (sourceExit.y + targetEntry.y) / 2;
+      return `M ${sourcePoint.x} ${sourcePoint.y} H ${sourceExit.x} V ${meioY} H ${targetEntry.x} V ${targetPoint.y}`;
+    }
+
+    const meioX = (sourceExit.x + targetEntry.x) / 2;
+    return `M ${sourcePoint.x} ${sourcePoint.y} V ${sourceExit.y} H ${meioX} V ${targetEntry.y} H ${targetPoint.x}`;
   };
 
   const handleDoubleClick = (e: React.MouseEvent) => {
@@ -166,7 +173,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
               id="arrowhead"
               markerWidth="8"
               markerHeight="6"
-              refX="7"
+              refX="10"
               refY="3"
               orient="auto"
             >
@@ -180,16 +187,12 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
             const target = nodeMap.get(edge.targetId);
             if (!source || !target) return null;
 
-            const closest = getClosestAnchor(source, target);
-            const sourcePoint = edge.sourceSide ? getAnchorPoint(source, edge.sourceSide) : { x: closest.x1, y: closest.y1 };
-            const targetPoint = edge.targetSide ? getAnchorPoint(target, edge.targetSide) : { x: closest.x2, y: closest.y2 };
-            const { x1, y1, x2, y2 } = {
-              x1: sourcePoint.x,
-              y1: sourcePoint.y,
-              x2: targetPoint.x,
-              y2: targetPoint.y,
-            };
-            const path = calculateCurvePath(x1, y1, x2, y2, edge.sourceSide, edge.targetSide);
+            const ancorasPadrao = getClosestAnchor(source, target);
+            const sourceSide = edge.sourceSide ?? ancorasPadrao.sourceSide;
+            const targetSide = edge.targetSide ?? ancorasPadrao.targetSide;
+            const sourcePoint = getAnchorPoint(source, sourceSide);
+            const targetPoint = getAnchorPoint(target, targetSide);
+            const path = calculateOrthogonalPath(sourcePoint, targetPoint, sourceSide, targetSide);
 
             return (
               <g key={edge.id} className="group/edge pointer-events-auto cursor-pointer">
@@ -217,13 +220,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
 
           {connectingSourceNode && connectingMousePos && (
             <path
-              d={calculateCurvePath(
-                getAnchorPoint(connectingSourceNode, connectingSourceSide || "right").x,
-                getAnchorPoint(connectingSourceNode, connectingSourceSide || "right").y,
-                connectingMousePos.x,
-                connectingMousePos.y,
-                connectingSourceSide || undefined
-              )}
+              d={`M ${getAnchorPoint(connectingSourceNode, connectingSourceSide || "right").x} ${getAnchorPoint(connectingSourceNode, connectingSourceSide || "right").y} L ${connectingMousePos.x} ${connectingMousePos.y}`}
               fill="none"
               stroke="#2563eb"
               strokeWidth="2.5"
@@ -284,6 +281,24 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
           </div>
         )}
       </div>
+
+      {onGerarResumoTema && (
+        <div className="absolute top-4 right-5 z-20">
+          <button
+            onClick={onGerarResumoTema}
+            disabled={!temaSelecionado || resumindoTema || nodes.length === 0}
+            className="flex items-center gap-2 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+            title={!temaSelecionado
+              ? "Selecione um tema na barra lateral para gerar o resumo"
+              : nodes.length === 0
+                ? "Crie uma nota neste tema antes de gerar um resumo"
+                : "Gerar resumo do tema com IA"}
+          >
+            {resumindoTema ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+            {resumindoTema ? "Gerando..." : !temaSelecionado ? "Selecione um tema" : "Resumo do tema"}
+          </button>
+        </div>
+      )}
 
       <CanvasControls
         zoom={viewport.zoom}

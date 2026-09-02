@@ -11,6 +11,35 @@ public sealed record ResultadoRevisaoNotaDto(
     IReadOnlyList<ApontamentoRevisaoDto> Apontamentos,
     IReadOnlyList<ReferenciaAnatomiaDto> Referencias);
 public sealed record RevisaoNotaResponseDto(Guid Id, int NotaId, ResultadoRevisaoNotaDto Resultado, string Modelo, DateTime DataCriacao);
+public sealed record ContextoTemaNotaDto(int NotaId, string Titulo, string Conteudo);
+public sealed record ContextoTemaConexaoDto(
+    int ConexaoId,
+    int NotaOrigemId,
+    string TituloOrigem,
+    int NotaDestinoId,
+    string TituloDestino,
+    string? Rotulo);
+public sealed record ContextoTemaDto(
+    int TemaId,
+    string Nome,
+    string? Descricao,
+    IReadOnlyList<ContextoTemaNotaDto> Notas,
+    IReadOnlyList<ContextoTemaConexaoDto> Conexoes);
+public sealed record RelacaoResumoTemaDto(
+    int ConexaoId,
+    int NotaOrigemId,
+    string TituloOrigem,
+    int NotaDestinoId,
+    string TituloDestino,
+    string? Rotulo,
+    string Descricao);
+public sealed record ResultadoResumoTemaDto(
+    StatusResumoTema Status,
+    string Resumo,
+    IReadOnlyList<string> PontosChave,
+    IReadOnlyList<RelacaoResumoTemaDto> Relacoes,
+    IReadOnlyList<ReferenciaAnatomiaDto> Referencias);
+public sealed record ResumoTemaResponseDto(Guid Id, int TemaId, ResultadoResumoTemaDto Resultado, string Modelo, DateTime DataCriacao);
 public sealed record ContextoAnatomiaDto(Guid ChunkId, Guid FonteId, string Fonte, int Pagina, string? Secao, string? Assunto, string Texto, double Similaridade);
 public sealed record ContextoNotaDto(int NotaId, string Titulo, string Conteudo, IReadOnlyList<ContextoNotaConectadaDto> Conexoes);
 public sealed record ContextoNotaConectadaDto(int NotaId, string Titulo, string Conteudo, string? Rotulo);

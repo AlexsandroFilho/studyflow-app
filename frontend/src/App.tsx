@@ -15,6 +15,16 @@ import { Tema } from "./types/tema";
 import { Nota } from "./types/nota";
 import { CanvasNode, CanvasEdge } from "./types/canvas";
 import { useAuth } from "./contexts/AuthContext";
+import { ThemeSummaryPanel } from "./components/canvas/ThemeSummaryPanel";
+import { resumoTemaService } from "./services/resumoTemaService";
+import { ResumoTema } from "./types/resumoTema";
+
+function obterMensagemErroIa(error: any): string {
+  const mensagem = error?.response?.data?.message || error?.message || "";
+  if (mensagem.includes("ao menos uma nota")) return "Crie ao menos uma nota no tema antes de gerar um resumo.";
+  const excedeuCota = mensagem.includes("429") || mensagem.includes("RESOURCE_EXHAUSTED") || mensagem.toLowerCase().includes("quota exceeded");
+  return excedeuCota ? "O limite temporário da IA foi atingido. Tente novamente mais tarde." : "Não foi possível concluir esta solicitação de IA agora. Tente novamente em alguns instantes.";
+}
 
 export function App() {
   const { logout } = useAuth();
@@ -32,6 +42,11 @@ export function App() {
     id: number;
     title: string;
   } | null>(null);
+  const [resumoTema, setResumoTema] = useState<ResumoTema | null>(null);
+  const [historicoResumosTema, setHistoricoResumosTema] = useState<ResumoTema[]>([]);
+  const [painelResumoTemaAberto, setPainelResumoTemaAberto] = useState(false);
+  const [resumindoTema, setResumindoTema] = useState(false);
+  const [erroResumoTema, setErroResumoTema] = useState<string | null>(null);
 
   const {
     temas,
@@ -60,6 +75,33 @@ export function App() {
     conectar,
     desconectarPorId,
   } = useConexoes(selectedTemaId);
+
+  const temaSelecionado = temas.find((tema) => tema.id === selectedTemaId) ?? null;
+
+  const handleGerarResumoTema = async () => {
+    if (!temaSelecionado) return;
+    setResumindoTema(true);
+    setErroResumoTema(null);
+    setPainelResumoTemaAberto(true);
+    try {
+      const novoResumo = await resumoTemaService.criar(temaSelecionado.id);
+      const historico = await resumoTemaService.listar(temaSelecionado.id);
+      setHistoricoResumosTema(historico);
+      setResumoTema(historico.find((item) => item.id === novoResumo.id) ?? novoResumo);
+    } catch (error: any) {
+      setErroResumoTema(obterMensagemErroIa(error));
+    } finally {
+      setResumindoTema(false);
+    }
+  };
+
+  const handleSelecionarTema = (temaId: number | null) => {
+    setSelectedTemaId(temaId);
+    setPainelResumoTemaAberto(false);
+    setResumoTema(null);
+    setHistoricoResumosTema([]);
+    setErroResumoTema(null);
+  };
 
   const filteredNotas = useMemo(() => {
     if (!searchTerm.trim()) return notas;
@@ -180,7 +222,7 @@ export function App() {
           temas={temas}
           notas={notas}
           selectedTemaId={selectedTemaId}
-          onSelectTema={setSelectedTemaId}
+          onSelectTema={handleSelecionarTema}
           onOpenCreateTema={() => {
             setEditingTema(null);
             setIsTemaModalOpen(true);
@@ -204,6 +246,7 @@ export function App() {
               nodes={nodes}
               edges={edges}
               temas={temas}
+              temaSelecionado={temaSelecionado}
               viewport={viewport}
               connectingSourceId={connectingSourceId}
               connectingSourceSide={connectingSourceSide}
@@ -226,6 +269,8 @@ export function App() {
                 setEditingNota(null);
                 setIsNotaModalOpen(true);
               }}
+              onGerarResumoTema={handleGerarResumoTema}
+              resumindoTema={resumindoTema}
             />
           ) : activeNota ? (
             <ObsidianEditor
@@ -239,6 +284,19 @@ export function App() {
           ) : (
             <div className="flex-1 flex items-center justify-center text-xs text-slate-500">
               Nenhuma nota selecionada para edição. Selecione uma nota no Mapa Mental ou crie uma nova.
+            </div>
+          )}
+          {viewMode === "canvas" && painelResumoTemaAberto && (
+            <ThemeSummaryPanel
+              resumo={resumoTema}
+              historico={historicoResumosTema}
+              onSelect={setResumoTema}
+              onClose={() => setPainelResumoTemaAberto(false)}
+            />
+          )}
+          {viewMode === "canvas" && erroResumoTema && (
+            <div className="absolute bottom-5 right-5 z-30 max-w-sm rounded-lg border border-red-200 bg-white px-3 py-2 text-xs text-red-700 shadow-lg">
+              {erroResumoTema}
             </div>
           )}
         </main>

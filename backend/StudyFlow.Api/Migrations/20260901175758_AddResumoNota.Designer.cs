@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Pgvector;
@@ -12,9 +13,11 @@ using StudyFlow.Api.Data;
 namespace StudyFlow.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260901175758_AddResumoNota")]
+    partial class AddResumoNota
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -187,7 +190,7 @@ namespace StudyFlow.Api.Migrations
                     b.ToTable("notas", (string)null);
                 });
 
-            modelBuilder.Entity("StudyFlow.Api.Domain.Entities.ResumoTema", b =>
+            modelBuilder.Entity("StudyFlow.Api.Domain.Entities.ResumoNota", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -201,14 +204,14 @@ namespace StudyFlow.Api.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<int>("NotaId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("ResultadoJson")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TemaId")
                         .HasColumnType("integer");
 
                     b.Property<Guid>("UsuarioId")
@@ -218,9 +221,9 @@ namespace StudyFlow.Api.Migrations
 
                     b.HasIndex("UsuarioId");
 
-                    b.HasIndex("TemaId", "DataCriacao");
+                    b.HasIndex("NotaId", "DataCriacao");
 
-                    b.ToTable("resumos_tema", (string)null);
+                    b.ToTable("resumos_nota", (string)null);
                 });
 
             modelBuilder.Entity("StudyFlow.Api.Domain.Entities.RevisaoNota", b =>
@@ -376,11 +379,11 @@ namespace StudyFlow.Api.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("StudyFlow.Api.Domain.Entities.ResumoTema", b =>
+            modelBuilder.Entity("StudyFlow.Api.Domain.Entities.ResumoNota", b =>
                 {
-                    b.HasOne("StudyFlow.Api.Domain.Entities.Tema", "Tema")
+                    b.HasOne("StudyFlow.Api.Domain.Entities.Nota", "Nota")
                         .WithMany()
-                        .HasForeignKey("TemaId")
+                        .HasForeignKey("NotaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -390,7 +393,7 @@ namespace StudyFlow.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Tema");
+                    b.Navigation("Nota");
 
                     b.Navigation("Usuario");
                 });

@@ -9,7 +9,7 @@ import { revisaoService } from "../../services/revisaoService";
 import { RevisaoNota } from "../../types/revisao";
 import { ReviewPanel } from "./ReviewPanel";
 
-function obterMensagemErroRevisao(error: any): string {
+function obterMensagemErroIa(error: any): string {
   const mensagem = error?.response?.data?.message || error?.message || "";
   const excedeuCota =
     mensagem.includes("429") ||
@@ -18,7 +18,7 @@ function obterMensagemErroRevisao(error: any): string {
 
   return excedeuCota
     ? "O limite temporário da IA foi atingido. Tente novamente mais tarde."
-    : "Não foi possível revisar esta nota agora. Tente novamente em alguns instantes.";
+    : "Não foi possível concluir esta solicitação de IA agora. Tente novamente em alguns instantes.";
 }
 
 interface ObsidianEditorProps {
@@ -94,7 +94,7 @@ export const ObsidianEditor: React.FC<ObsidianEditorProps> = ({
       await onUpdateNota(nota.id, { titulo, conteudo, temaId });
       setRevisao(await revisaoService.criar(nota.id));
     } catch (error: any) {
-      setErroRevisao(obterMensagemErroRevisao(error));
+      setErroRevisao(obterMensagemErroIa(error));
     } finally {
       setRevisando(false);
     }

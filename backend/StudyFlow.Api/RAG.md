@@ -8,6 +8,14 @@ O projeto usa `gemini-embedding-001` com 1536 dimensões, mantendo compatibilida
 
 Para usar Supabase Storage, configure também `SupabaseStorage:Url` e `SupabaseStorage:ServiceRoleKey` em `appsettings.Development.json`. Sem esses valores, os PDFs são copiados para `App_Data/fontes-anatomia` durante o desenvolvimento.
 
+## Funcionalidades disponíveis
+
+- `POST /api/v1/notas/{notaId}/revisoes`: revisa a nota sem alterá-la e registra o histórico.
+- `POST /api/v1/temas/{temaId}/resumos`: gera e salva um resumo fundamentado do tema.
+- `GET /api/v1/temas/{temaId}/resumos`: consulta o histórico de resumos do tema autenticado.
+
+A revisão usa a nota atual e suas conexões diretas. O resumo de tema usa todas as notas atribuídas ao tema e apenas as conexões visuais internas a ele. Em ambos os casos, as notas são contexto; as referências exibidas sempre vêm do acervo oficial recuperado.
+
 ## Banco de dados
 
 O PostgreSQL precisa permitir a extensão `vector`. A migration `AddAnatomiaRag` cria a extensão, as tabelas de fontes/chunks/histórico e o índice HNSW para similaridade por cosseno.
@@ -36,3 +44,12 @@ GET  /api/v1/notas/{notaId}/revisoes
 ```
 
 A revisão utiliza apenas a nota solicitada, suas conexões diretas do mesmo usuário e chunks de fontes oficiais publicadas. A anotação original nunca é alterada.
+
+## Resumos de tema
+
+```text
+POST /api/v1/temas/{temaId}/resumos
+GET  /api/v1/temas/{temaId}/resumos
+```
+
+O resumo inclui todas as notas do tema selecionado. As setas continuam sendo recursos visuais do Canvas e também ajudam a IA a explicar relações, mas não excluem notas sem conexão. Apenas conexões cujas duas notas pertencem ao tema entram nesse contexto.

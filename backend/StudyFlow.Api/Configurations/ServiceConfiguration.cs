@@ -28,12 +28,17 @@ public static class ServiceConfiguration
         services.AddScoped<IFonteAnatomiaRepository, FonteAnatomiaRepository>();
         services.AddScoped<IAnatomiaChunkRepository, AnatomiaChunkRepository>();
         services.AddScoped<IRevisaoNotaRepository, RevisaoNotaRepository>();
+        services.AddScoped<IResumoTemaRepository, ResumoTemaRepository>();
         services.AddScoped<IContextoGrafoNotasRepository, ContextoGrafoNotasRepository>();
         services.AddScoped<IContextoGrafoNotasService, ContextoGrafoNotasService>();
+        services.AddScoped<IContextoTemaRepository, ContextoTemaRepository>();
+        services.AddScoped<IContextoTemaService, ContextoTemaService>();
         services.AddScoped<IEmbeddingService, GeminiEmbeddingService>();
         services.AddScoped<IBuscaContextoAnatomia, BuscaContextoAnatomiaPostgres>();
         services.AddScoped<IRevisorAnatomia, GeminiRevisorAnatomia>();
+        services.AddScoped<IResumidorTemaAnatomia, GeminiResumidorTemaAnatomia>();
         services.AddScoped<IRevisaoNotaService, RevisaoNotaService>();
+        services.AddScoped<IResumoTemaService, ResumoTemaService>();
         services.AddScoped<IIngestaoAnatomiaService, IngestaoAnatomiaService>();
         services.AddHttpClient<IModeloIaClient, GeminiModelClient>(client =>
         {

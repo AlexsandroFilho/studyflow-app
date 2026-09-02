@@ -18,6 +18,7 @@ namespace StudyFlow.Api.Data
         public DbSet<FonteAnatomia> FontesAnatomia { get; set; }
         public DbSet<AnatomiaChunkVector> AnatomiaChunks { get; set; }
         public DbSet<RevisaoNota> RevisoesNota { get; set; }
+        public DbSet<ResumoTema> ResumosTema { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
