@@ -4,13 +4,19 @@ public static class CorsConfiguration
 {
     private const string PolicyName = "AllowReactApp";
 
-    public static IServiceCollection AddCorsConfiguration(this IServiceCollection services)
+    public static IServiceCollection AddCorsConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
+        var originsConfiguradas = configuration.GetSection("Cors").GetValue<string>("AllowedOrigins")
+            ?? "http://localhost:5173";
+        var origins = originsConfiguradas.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (origins.Length == 0)
+            throw new InvalidOperationException("Configure Cors:AllowedOrigins com ao menos uma URL do frontend.");
+
         services.AddCors(options =>
         {
             options.AddPolicy(PolicyName, policy =>
             {
-                policy.WithOrigins("http://localhost:5173", "http://192.168.222.1:5173")
+                policy.WithOrigins(origins)
                       .AllowAnyHeader()
                       .AllowAnyMethod();
             });
