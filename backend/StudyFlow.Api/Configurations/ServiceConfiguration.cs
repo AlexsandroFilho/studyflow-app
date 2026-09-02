@@ -29,6 +29,7 @@ public static class ServiceConfiguration
         services.AddScoped<IAnatomiaChunkRepository, AnatomiaChunkRepository>();
         services.AddScoped<IRevisaoNotaRepository, RevisaoNotaRepository>();
         services.AddScoped<IResumoTemaRepository, ResumoTemaRepository>();
+        services.AddScoped<IQuizTemaRepository, QuizTemaRepository>();
         services.AddScoped<IContextoGrafoNotasRepository, ContextoGrafoNotasRepository>();
         services.AddScoped<IContextoGrafoNotasService, ContextoGrafoNotasService>();
         services.AddScoped<IContextoTemaRepository, ContextoTemaRepository>();
@@ -37,8 +38,10 @@ public static class ServiceConfiguration
         services.AddScoped<IBuscaContextoAnatomia, BuscaContextoAnatomiaPostgres>();
         services.AddScoped<IRevisorAnatomia, GeminiRevisorAnatomia>();
         services.AddScoped<IResumidorTemaAnatomia, GeminiResumidorTemaAnatomia>();
+        services.AddScoped<IGeradorQuizTemaAnatomia, GeminiGeradorQuizTemaAnatomia>();
         services.AddScoped<IRevisaoNotaService, RevisaoNotaService>();
         services.AddScoped<IResumoTemaService, ResumoTemaService>();
+        services.AddScoped<IQuizTemaService, QuizTemaService>();
         services.AddScoped<IIngestaoAnatomiaService, IngestaoAnatomiaService>();
         services.AddHttpClient<IModeloIaClient, GeminiModelClient>(client =>
         {

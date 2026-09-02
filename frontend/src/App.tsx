@@ -18,10 +18,13 @@ import { useAuth } from "./contexts/AuthContext";
 import { ThemeSummaryPanel } from "./components/canvas/ThemeSummaryPanel";
 import { resumoTemaService } from "./services/resumoTemaService";
 import { ResumoTema } from "./types/resumoTema";
+import { ThemeQuizPanel } from "./components/canvas/ThemeQuizPanel";
+import { quizTemaService } from "./services/quizTemaService";
+import { QuizTema, TentativaQuiz } from "./types/quizTema";
 
 function obterMensagemErroIa(error: any): string {
   const mensagem = error?.response?.data?.message || error?.message || "";
-  if (mensagem.includes("ao menos uma nota")) return "Crie ao menos uma nota no tema antes de gerar um resumo.";
+  if (mensagem.includes("ao menos uma nota")) return "Crie ao menos uma nota no tema antes de usar este recurso de IA.";
   const excedeuCota = mensagem.includes("429") || mensagem.includes("RESOURCE_EXHAUSTED") || mensagem.toLowerCase().includes("quota exceeded");
   return excedeuCota ? "O limite temporário da IA foi atingido. Tente novamente mais tarde." : "Não foi possível concluir esta solicitação de IA agora. Tente novamente em alguns instantes.";
 }
@@ -47,6 +50,13 @@ export function App() {
   const [painelResumoTemaAberto, setPainelResumoTemaAberto] = useState(false);
   const [resumindoTema, setResumindoTema] = useState(false);
   const [erroResumoTema, setErroResumoTema] = useState<string | null>(null);
+  const [quizTema, setQuizTema] = useState<QuizTema | null>(null);
+  const [historicoQuizzes, setHistoricoQuizzes] = useState<QuizTema[]>([]);
+  const [tentativasQuiz, setTentativasQuiz] = useState<TentativaQuiz[]>([]);
+  const [tentativaSelecionada, setTentativaSelecionada] = useState<TentativaQuiz | null>(null);
+  const [painelQuizAberto, setPainelQuizAberto] = useState(false);
+  const [gerandoQuiz, setGerandoQuiz] = useState(false);
+  const [enviandoQuiz, setEnviandoQuiz] = useState(false);
 
   const {
     temas,
@@ -83,6 +93,7 @@ export function App() {
     setResumindoTema(true);
     setErroResumoTema(null);
     setPainelResumoTemaAberto(true);
+    setPainelQuizAberto(false);
     try {
       const novoResumo = await resumoTemaService.criar(temaSelecionado.id);
       const historico = await resumoTemaService.listar(temaSelecionado.id);
@@ -95,12 +106,82 @@ export function App() {
     }
   };
 
+  const handleGerarQuizTema = async () => {
+    if (!temaSelecionado) return;
+    setGerandoQuiz(true);
+    setErroResumoTema(null);
+    setPainelResumoTemaAberto(false);
+    setPainelQuizAberto(true);
+    setTentativaSelecionada(null);
+    try {
+      const novoQuiz = await quizTemaService.criar(temaSelecionado.id);
+      const historico = await quizTemaService.listar(temaSelecionado.id);
+      const quizAtual = historico.find(item => item.id === novoQuiz.id) ?? novoQuiz;
+      setHistoricoQuizzes(historico);
+      setQuizTema(quizAtual);
+      setTentativasQuiz([]);
+    } catch (error: any) {
+      setErroResumoTema(obterMensagemErroIa(error));
+    } finally {
+      setGerandoQuiz(false);
+    }
+  };
+
+  const handleAbrirQuizTema = async () => {
+    if (!temaSelecionado) return;
+    setErroResumoTema(null);
+    setPainelResumoTemaAberto(false);
+    setPainelQuizAberto(true);
+    try {
+      const historico = await quizTemaService.listar(temaSelecionado.id);
+      setHistoricoQuizzes(historico);
+      const maisRecente = historico[0] ?? null;
+      setQuizTema(maisRecente);
+      setTentativaSelecionada(null);
+      setTentativasQuiz(maisRecente ? await quizTemaService.listarTentativas(maisRecente.id) : []);
+    } catch (error: any) {
+      setErroResumoTema(obterMensagemErroIa(error));
+    }
+  };
+
+  const handleSelecionarQuiz = async (quiz: QuizTema) => {
+    setQuizTema(quiz);
+    setTentativaSelecionada(null);
+    try {
+      setTentativasQuiz(await quizTemaService.listarTentativas(quiz.id));
+    } catch (error: any) {
+      setErroResumoTema(obterMensagemErroIa(error));
+    }
+  };
+
+  const handleFinalizarQuiz = async (respostas: Record<string, number>) => {
+    if (!quizTema) return;
+    setEnviandoQuiz(true);
+    setErroResumoTema(null);
+    try {
+      const tentativa = await quizTemaService.criarTentativa(quizTema.id, {
+        respostas: quizTema.perguntas.map(pergunta => ({ perguntaId: pergunta.id, indiceAlternativa: respostas[pergunta.id] })),
+      });
+      setTentativaSelecionada(tentativa);
+      setTentativasQuiz(anteriores => [tentativa, ...anteriores]);
+    } catch (error: any) {
+      setErroResumoTema(obterMensagemErroIa(error));
+    } finally {
+      setEnviandoQuiz(false);
+    }
+  };
+
   const handleSelecionarTema = (temaId: number | null) => {
     setSelectedTemaId(temaId);
     setPainelResumoTemaAberto(false);
     setResumoTema(null);
     setHistoricoResumosTema([]);
     setErroResumoTema(null);
+    setPainelQuizAberto(false);
+    setQuizTema(null);
+    setHistoricoQuizzes([]);
+    setTentativasQuiz([]);
+    setTentativaSelecionada(null);
   };
 
   const filteredNotas = useMemo(() => {
@@ -271,6 +352,8 @@ export function App() {
               }}
               onGerarResumoTema={handleGerarResumoTema}
               resumindoTema={resumindoTema}
+              onGerarQuizTema={handleAbrirQuizTema}
+              gerandoQuizTema={gerandoQuiz}
             />
           ) : activeNota ? (
             <ObsidianEditor
@@ -292,6 +375,21 @@ export function App() {
               historico={historicoResumosTema}
               onSelect={setResumoTema}
               onClose={() => setPainelResumoTemaAberto(false)}
+            />
+          )}
+          {viewMode === "canvas" && painelQuizAberto && (
+            <ThemeQuizPanel
+              quiz={quizTema}
+              quizzes={historicoQuizzes}
+              tentativas={tentativasQuiz}
+              enviando={enviandoQuiz}
+              onSelectQuiz={handleSelecionarQuiz}
+              onSelectTentativa={setTentativaSelecionada}
+              onSubmit={handleFinalizarQuiz}
+              onGenerate={handleGerarQuizTema}
+              gerando={gerandoQuiz}
+              tentativaSelecionada={tentativaSelecionada}
+              onClose={() => setPainelQuizAberto(false)}
             />
           )}
           {viewMode === "canvas" && erroResumoTema && (

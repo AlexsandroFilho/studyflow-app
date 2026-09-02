@@ -19,6 +19,10 @@ namespace StudyFlow.Api.Data
         public DbSet<AnatomiaChunkVector> AnatomiaChunks { get; set; }
         public DbSet<RevisaoNota> RevisoesNota { get; set; }
         public DbSet<ResumoTema> ResumosTema { get; set; }
+        public DbSet<QuizTema> QuizzesTema { get; set; }
+        public DbSet<QuizTemaPergunta> QuizTemaPerguntas { get; set; }
+        public DbSet<TentativaQuizTema> TentativasQuizTema { get; set; }
+        public DbSet<RespostaTentativaQuizTema> RespostasTentativaQuizTema { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

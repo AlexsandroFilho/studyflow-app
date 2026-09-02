@@ -40,6 +40,42 @@ public sealed record ResultadoResumoTemaDto(
     IReadOnlyList<RelacaoResumoTemaDto> Relacoes,
     IReadOnlyList<ReferenciaAnatomiaDto> Referencias);
 public sealed record ResumoTemaResponseDto(Guid Id, int TemaId, ResultadoResumoTemaDto Resultado, string Modelo, DateTime DataCriacao);
+public sealed record PerguntaQuizGeradaDto(
+    string Enunciado,
+    IReadOnlyList<string> Alternativas,
+    int IndiceRespostaCorreta,
+    string Explicacao,
+    IReadOnlyList<ReferenciaAnatomiaDto> Referencias);
+public sealed record ResultadoGeracaoQuizTemaDto(StatusQuizTema Status, string Mensagem, IReadOnlyList<PerguntaQuizGeradaDto> Perguntas);
+public sealed record PerguntaQuizResponseDto(Guid Id, int Ordem, string Enunciado, IReadOnlyList<string> Alternativas);
+public sealed record QuizTemaResponseDto(
+    Guid Id,
+    int TemaId,
+    StatusQuizTema Status,
+    string Mensagem,
+    IReadOnlyList<PerguntaQuizResponseDto> Perguntas,
+    string Modelo,
+    DateTime DataCriacao);
+public sealed record RespostaPerguntaQuizRequestDto(Guid PerguntaId, int IndiceAlternativa);
+public sealed record CriarTentativaQuizRequestDto(IReadOnlyList<RespostaPerguntaQuizRequestDto> Respostas);
+public sealed record CorrecaoPerguntaQuizDto(
+    Guid PerguntaId,
+    int Ordem,
+    string Enunciado,
+    IReadOnlyList<string> Alternativas,
+    int IndiceAlternativaSelecionada,
+    int IndiceRespostaCorreta,
+    bool Acertou,
+    string Explicacao,
+    IReadOnlyList<ReferenciaAnatomiaDto> Referencias);
+public sealed record TentativaQuizTemaResponseDto(
+    Guid Id,
+    Guid QuizId,
+    int QuantidadeAcertos,
+    int QuantidadeQuestoes,
+    double Percentual,
+    IReadOnlyList<CorrecaoPerguntaQuizDto> Correcoes,
+    DateTime DataCriacao);
 public sealed record ContextoAnatomiaDto(Guid ChunkId, Guid FonteId, string Fonte, int Pagina, string? Secao, string? Assunto, string Texto, double Similaridade);
 public sealed record ContextoNotaDto(int NotaId, string Titulo, string Conteudo, IReadOnlyList<ContextoNotaConectadaDto> Conexoes);
 public sealed record ContextoNotaConectadaDto(int NotaId, string Titulo, string Conteudo, string? Rotulo);

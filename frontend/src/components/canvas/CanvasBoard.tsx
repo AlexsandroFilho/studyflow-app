@@ -5,7 +5,7 @@ import { Tema } from "../../types/tema";
 import { CanvasNodeCard } from "./CanvasNodeCard";
 import { CanvasControls } from "./CanvasControls";
 import { EmptyState } from "../ui/EmptyState";
-import { Network, MousePointer2, Link2, X, FileText, Loader2 } from "lucide-react";
+import { Network, MousePointer2, Link2, X, FileText, Loader2, ListChecks } from "lucide-react";
 
 interface CanvasBoardProps {
   nodes: CanvasNode[];
@@ -32,6 +32,8 @@ interface CanvasBoardProps {
   onOpenCreateNota: () => void;
   onGerarResumoTema?: () => void;
   resumindoTema?: boolean;
+  onGerarQuizTema?: () => void;
+  gerandoQuizTema?: boolean;
   onDoubleClickCanvas?: (x: number, y: number) => void;
   onCancelConnecting?: () => void;
 }
@@ -102,6 +104,8 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
   onOpenCreateNota,
   onGerarResumoTema,
   resumindoTema = false,
+  onGerarQuizTema,
+  gerandoQuizTema = false,
   onDoubleClickCanvas,
   onCancelConnecting,
 }) => {
@@ -282,8 +286,18 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
         )}
       </div>
 
-      {onGerarResumoTema && (
-        <div className="absolute top-4 right-5 z-20">
+      {(onGerarResumoTema || onGerarQuizTema) && (
+        <div className="absolute top-4 right-5 z-20 flex items-center gap-2">
+          {onGerarQuizTema && <button
+            onClick={onGerarQuizTema}
+            disabled={!temaSelecionado || gerandoQuizTema || nodes.length === 0}
+            className="flex items-center gap-2 rounded-lg border border-blue-200 bg-white px-3.5 py-2 text-xs font-semibold text-blue-700 shadow-sm hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
+            title={!temaSelecionado ? "Selecione um tema para gerar o quiz" : nodes.length === 0 ? "Crie uma nota neste tema" : "Gerar quiz do tema"}
+          >
+            {gerandoQuizTema ? <Loader2 className="w-4 h-4 animate-spin" /> : <ListChecks className="w-4 h-4" />}
+            {gerandoQuizTema ? "Gerando..." : "Quiz do tema"}
+          </button>}
+          {onGerarResumoTema &&
           <button
             onClick={onGerarResumoTema}
             disabled={!temaSelecionado || resumindoTema || nodes.length === 0}
@@ -297,6 +311,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
             {resumindoTema ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
             {resumindoTema ? "Gerando..." : !temaSelecionado ? "Selecione um tema" : "Resumo do tema"}
           </button>
+          }
         </div>
       )}
 

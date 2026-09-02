@@ -10,4 +10,6 @@ public sealed class AiSettings
     public int IntervaloMinimoEmbeddingMs { get; init; } = 700;
     public int TamanhoLoteIngestao { get; init; } = 20;
     public int ContextoQuantidadeChunks { get; init; } = 6;
+    public int ContextoQuantidadeChunksTema { get; init; } = 10;
+    public int ContextoQuantidadeChunksQuiz { get; init; } = 10;
 }

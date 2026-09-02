@@ -13,6 +13,9 @@ Para usar Supabase Storage, configure também `SupabaseStorage:Url` e `SupabaseS
 - `POST /api/v1/notas/{notaId}/revisoes`: revisa a nota sem alterá-la e registra o histórico.
 - `POST /api/v1/temas/{temaId}/resumos`: gera e salva um resumo fundamentado do tema.
 - `GET /api/v1/temas/{temaId}/resumos`: consulta o histórico de resumos do tema autenticado.
+- `POST /api/v1/temas/{temaId}/quizzes`: gera um quiz fundamentado com cinco questões.
+- `GET /api/v1/temas/{temaId}/quizzes`: consulta o histórico de quizzes do tema.
+- `POST /api/v1/quizzes/{quizId}/tentativas`: corrige e salva uma tentativa sem nova chamada à IA.
 
 A revisão usa a nota atual e suas conexões diretas. O resumo de tema usa todas as notas atribuídas ao tema e apenas as conexões visuais internas a ele. Em ambos os casos, as notas são contexto; as referências exibidas sempre vêm do acervo oficial recuperado.
 
@@ -53,3 +56,7 @@ GET  /api/v1/temas/{temaId}/resumos
 ```
 
 O resumo inclui todas as notas do tema selecionado. As setas continuam sendo recursos visuais do Canvas e também ajudam a IA a explicar relações, mas não excluem notas sem conexão. Apenas conexões cujas duas notas pertencem ao tema entram nesse contexto.
+
+## Quizzes de tema
+
+O quiz reutiliza o mesmo contexto do resumo e gera cinco questões intermediárias com quatro alternativas. O gabarito fica somente no backend até a finalização. A correção é determinística, salva a tentativa e retorna explicações e referências oficiais por questão.
