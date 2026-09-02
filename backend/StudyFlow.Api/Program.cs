@@ -14,6 +14,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddCorsConfiguration(builder.Configuration);
 builder.Services.AddHealthChecks();
+builder.Services.AddForwardedHeadersConfiguration();
 
 var app = builder.Build();
 
@@ -35,7 +36,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();
-
+app.UseForwardedHeadersConfiguration();
 app.UseCorsConfiguration();
 app.UseHttpsRedirection();
 app.UseAuthentication();

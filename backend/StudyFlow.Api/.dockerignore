@@ -1,0 +1,7 @@
+# Arquivos locais que não devem ser enviados para a etapa de build no Render.
+bin/
+obj/
+.git/
+.env
+appsettings.Development.json
+App_Data/
