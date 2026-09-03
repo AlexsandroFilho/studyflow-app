@@ -21,6 +21,9 @@ import { ResumoTema } from "./types/resumoTema";
 import { ThemeQuizPanel } from "./components/canvas/ThemeQuizPanel";
 import { quizTemaService } from "./services/quizTemaService";
 import { QuizTema, TentativaQuiz } from "./types/quizTema";
+import { Position } from "./types/canvas";
+import { useSidebarVisibility } from "./hooks/useSidebarVisibility";
+import { useNavigate } from "react-router-dom";
 
 function obterMensagemErroIa(error: any): string {
   const mensagem = error?.response?.data?.message || error?.message || "";
@@ -30,7 +33,8 @@ function obterMensagemErroIa(error: any): string {
 }
 
 export function App() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<ViewMode>("canvas");
   const [searchTerm, setSearchTerm] = useState<string>("");
 
@@ -57,6 +61,8 @@ export function App() {
   const [painelQuizAberto, setPainelQuizAberto] = useState(false);
   const [gerandoQuiz, setGerandoQuiz] = useState(false);
   const [enviandoQuiz, setEnviandoQuiz] = useState(false);
+  const [novaNotaPosition, setNovaNotaPosition] = useState<Position | null>(null);
+  const { isCollapsed: sidebarCollapsed, toggle: toggleSidebar } = useSidebarVisibility();
 
   const {
     temas,
@@ -210,6 +216,9 @@ export function App() {
     zoomIn,
     zoomOut,
     resetView,
+    canvasContainerRef,
+    obterPosicaoNoCentroVisivel,
+    definirPosicaoNota,
   } = useCanvas(filteredNotas, conexoes, async (source, target) => {
     try {
       await conectar({
@@ -220,6 +229,12 @@ export function App() {
       console.error(err);
     }
   });
+
+  const abrirCriacaoNota = (position: Position | null = null) => {
+    setEditingNota(null);
+    setNovaNotaPosition(position);
+    setIsNotaModalOpen(true);
+  };
 
   const handleOpenInEditor = (notaId: number) => {
     const nota = notas.find((n) => n.id === notaId);
@@ -285,8 +300,7 @@ export function App() {
         viewMode={viewMode}
         setViewMode={setViewMode}
         onOpenCreateNota={() => {
-          setEditingNota(null);
-          setIsNotaModalOpen(true);
+          abrirCriacaoNota(viewMode === "canvas" ? obterPosicaoNoCentroVisivel() : null);
         }}
         onOpenCreateTema={() => {
           setEditingTema(null);
@@ -296,6 +310,8 @@ export function App() {
         totalTemas={temas.length}
         totalConexoes={conexoes.length}
         onLogout={logout}
+        isAdmin={user?.role === "Admin"}
+        onOpenAdmin={() => navigate("/admin/fontes")}
       />
 
       <div className="flex-1 flex overflow-hidden bg-[#F8FAFC]">
@@ -315,6 +331,8 @@ export function App() {
           onDeleteTema={handleDeleteTemaPrompt}
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
+          isCollapsed={sidebarCollapsed}
+          onToggle={toggleSidebar}
         />
 
         <main className="flex-1 flex relative overflow-hidden bg-[#F8FAFC]">
@@ -346,10 +364,9 @@ export function App() {
               onZoomOut={zoomOut}
               onResetView={resetView}
               onCancelConnecting={handleCancelConnecting}
-              onOpenCreateNota={() => {
-                setEditingNota(null);
-                setIsNotaModalOpen(true);
-              }}
+              canvasContainerRef={canvasContainerRef}
+              onOpenCreateNota={() => abrirCriacaoNota(obterPosicaoNoCentroVisivel())}
+              onDoubleClickCanvas={(x, y) => abrirCriacaoNota({ x: x - 144, y: y - 80 })}
               onGerarResumoTema={handleGerarResumoTema}
               resumindoTema={resumindoTema}
               onGerarQuizTema={handleAbrirQuizTema}
@@ -404,11 +421,13 @@ export function App() {
         isOpen={isNotaModalOpen}
         onClose={() => {
           setIsNotaModalOpen(false);
+          setNovaNotaPosition(null);
         }}
         temas={temas}
         editingNota={editingNota}
         onSubmitCreate={async (dto) => {
-          await criarNota(dto);
+          const nota = await criarNota(dto);
+          if (novaNotaPosition) definirPosicaoNota(nota.id, novaNotaPosition);
         }}
         onSubmitUpdate={async (id, dto) => {
           await atualizarNota(id, dto);

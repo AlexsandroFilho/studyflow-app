@@ -12,7 +12,7 @@ interface CreateNotaModalProps {
   onClose: () => void;
   temas: Tema[];
   editingNota?: Nota | null;
-  onSubmitCreate: (dto: NotaRequestDto) => Promise<void>;
+  onSubmitCreate: (dto: NotaRequestDto) => Promise<Nota | void>;
   onSubmitUpdate: (id: number, dto: NotaUpdateDto) => Promise<void>;
 }
 

@@ -36,6 +36,7 @@ interface CanvasBoardProps {
   gerandoQuizTema?: boolean;
   onDoubleClickCanvas?: (x: number, y: number) => void;
   onCancelConnecting?: () => void;
+  canvasContainerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const CARD_WIDTH = 288;
@@ -108,6 +109,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
   gerandoQuizTema = false,
   onDoubleClickCanvas,
   onCancelConnecting,
+  canvasContainerRef,
 }) => {
   const nodeMap = new Map<number, CanvasNode>(nodes.map((n) => [n.id, n]));
 
@@ -150,6 +152,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
 
   return (
     <div
+      ref={canvasContainerRef}
       className="canvas-container relative flex-1 h-full w-full overflow-hidden select-none cursor-default"
       onMouseDown={onCanvasMouseDown}
       onMouseMove={onMouseMove}

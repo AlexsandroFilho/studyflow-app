@@ -1,5 +1,5 @@
 import React from "react";
-import { Folder, Search, Plus, Trash2, Edit2, Network } from "lucide-react";
+import { Folder, Search, Plus, Trash2, Edit2, Network, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Tema } from "../../types/tema";
 import { Nota } from "../../types/nota";
 import { getThemeColor } from "../../hooks/useCanvas";
@@ -14,6 +14,8 @@ interface SidebarProps {
   onDeleteTema: (tema: Tema) => void;
   searchTerm: string;
   onSearchChange: (term: string) => void;
+  isCollapsed: boolean;
+  onToggle: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -26,14 +28,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onDeleteTema,
   searchTerm,
   onSearchChange,
+  isCollapsed,
+  onToggle,
 }) => {
   const getNotaCount = (temaId: number) =>
     notas.filter((n) => n.temaId === temaId).length;
 
+  if (isCollapsed) {
+    return (
+      <aside className="w-11 bg-white border-r border-slate-200 h-full z-20 shrink-0 shadow-sm flex flex-col items-center pt-3">
+        <button onClick={onToggle} title="Mostrar temas" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors">
+          <PanelLeftOpen className="h-4 w-4" />
+        </button>
+      </aside>
+    );
+  }
+
   return (
     <aside className="w-64 bg-white border-r border-slate-200 flex flex-col h-full z-20 select-none shrink-0 shadow-sm">
       <div className="p-3 border-b border-slate-200">
-        <div className="relative">
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
           <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
@@ -42,6 +57,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             placeholder="Buscar notas e conexões..."
             className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 transition-colors"
           />
+          </div>
+          <button onClick={onToggle} title="Ocultar temas" className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors">
+            <PanelLeftClose className="h-4 w-4" />
+          </button>
         </div>
       </div>
 

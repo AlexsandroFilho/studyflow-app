@@ -23,6 +23,7 @@ namespace StudyFlow.Api.Data
         public DbSet<QuizTemaPergunta> QuizTemaPerguntas { get; set; }
         public DbSet<TentativaQuizTema> TentativasQuizTema { get; set; }
         public DbSet<RespostaTentativaQuizTema> RespostasTentativaQuizTema { get; set; }
+        public DbSet<IngestaoFonteAnatomia> IngestoesFontesAnatomia { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

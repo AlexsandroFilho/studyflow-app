@@ -1,5 +1,5 @@
 import React from "react";
-import { LayoutGrid, BookOpen, Plus, Network, LogOut } from "lucide-react";
+import { LayoutGrid, BookOpen, Plus, Network, LogOut, ShieldCheck } from "lucide-react";
 
 export type ViewMode = "canvas" | "editor";
 
@@ -12,6 +12,8 @@ interface HeaderProps {
   totalTemas: number;
   totalConexoes: number;
   onLogout: () => void;
+  isAdmin: boolean;
+  onOpenAdmin: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -23,6 +25,8 @@ export const Header: React.FC<HeaderProps> = ({
   totalTemas,
   totalConexoes,
   onLogout,
+  isAdmin,
+  onOpenAdmin,
 }) => {
   return (
     <header className="h-14 border-b border-slate-200 bg-white px-5 flex items-center justify-between z-30 select-none shrink-0 shadow-sm">
@@ -67,6 +71,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="flex items-center gap-2">
+        {isAdmin && <button onClick={onOpenAdmin} className="flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100"><ShieldCheck className="h-3.5 w-3.5" />Admin</button>}
         <button
           onClick={onOpenCreateTema}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors"

@@ -26,6 +26,7 @@ public static class ServiceConfiguration
         services.AddScoped<IConexaoNotaRepository, ConexaoNotaRepository>();
         services.AddScoped<IConexaoNotaService, ConexaoNotaService>();
         services.AddScoped<IFonteAnatomiaRepository, FonteAnatomiaRepository>();
+        services.AddScoped<IIngestaoFonteAnatomiaRepository, IngestaoFonteAnatomiaRepository>();
         services.AddScoped<IAnatomiaChunkRepository, AnatomiaChunkRepository>();
         services.AddScoped<IRevisaoNotaRepository, RevisaoNotaRepository>();
         services.AddScoped<IResumoTemaRepository, ResumoTemaRepository>();
@@ -43,6 +44,8 @@ public static class ServiceConfiguration
         services.AddScoped<IResumoTemaService, ResumoTemaService>();
         services.AddScoped<IQuizTemaService, QuizTemaService>();
         services.AddScoped<IIngestaoAnatomiaService, IngestaoAnatomiaService>();
+        services.AddScoped<IAdministracaoFonteAnatomiaService, AdministracaoFonteAnatomiaService>();
+        services.AddHostedService<ProcessadorIngestaoFonteAnatomiaWorker>();
         services.AddHttpClient<IModeloIaClient, GeminiModelClient>(client =>
         {
             client.BaseAddress = new Uri("https://generativelanguage.googleapis.com/");

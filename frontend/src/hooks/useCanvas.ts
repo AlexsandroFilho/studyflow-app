@@ -11,6 +11,8 @@ export interface ConnectionAnchor {
 }
 
 const LOCAL_STORAGE_POSITIONS_KEY = "canvas_node_positions";
+const NOTE_CARD_WIDTH = 288;
+const NOTE_CARD_HEIGHT = 160;
 
 function getSavedPositions(): Record<number, Position> {
   try {
@@ -54,6 +56,7 @@ export function useCanvas(
   const [connectingSourceSide, setConnectingSourceSide] = useState<AnchorSide | null>(null);
   const [connectingMousePos, setConnectingMousePos] = useState<Position | null>(null);
   const [edgeAnchors, setEdgeAnchors] = useState<Record<string, { sourceSide: AnchorSide; targetSide: AnchorSide }>>({});
+  const canvasContainerRef = useRef<HTMLDivElement | null>(null);
 
   const isPanningRef = useRef(false);
   const panStartRef = useRef<Position>({ x: 0, y: 0 });
@@ -259,6 +262,23 @@ export function useCanvas(
   const zoomOut = () => setViewport((v) => ({ ...v, zoom: Math.max(v.zoom - 0.15, 0.4) }));
   const resetView = () => setViewport({ x: 120, y: 100, zoom: 1 });
 
+  const obterPosicaoNoCentroVisivel = useCallback((): Position | null => {
+    const container = canvasContainerRef.current;
+    if (!container) return null;
+
+    const { width, height } = container.getBoundingClientRect();
+    return {
+      x: (width / 2 - viewport.x) / viewport.zoom - NOTE_CARD_WIDTH / 2,
+      y: (height / 2 - viewport.y) / viewport.zoom - NOTE_CARD_HEIGHT / 2,
+    };
+  }, [viewport]);
+
+  const definirPosicaoNota = useCallback((notaId: number, position: Position) => {
+    const positions = { ...getSavedPositions(), [notaId]: position };
+    savePositions(positions);
+    setNodes(anteriores => anteriores.map(node => node.id === notaId ? { ...node, position } : node));
+  }, []);
+
   return {
     nodes,
     edges,
@@ -278,5 +298,8 @@ export function useCanvas(
     zoomOut,
     resetView,
     setViewport,
+    canvasContainerRef,
+    obterPosicaoNoCentroVisivel,
+    definirPosicaoNota,
   };
 }

@@ -5,6 +5,7 @@ export interface AuthUser {
   userId: string;
   nome: string;
   email: string;
+  role: "Admin" | "User";
 }
 
 interface AuthResponse {
@@ -12,6 +13,7 @@ interface AuthResponse {
   userId: string;
   nome: string;
   email: string;
+  role: "Admin" | "User";
 }
 
 interface AuthContextValue {
@@ -87,6 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       userId: response.userId,
       nome: response.nome,
       email: response.email,
+      role: response.role,
     };
     localStorage.setItem(TOKEN_KEY, response.token);
     localStorage.setItem(USER_KEY, JSON.stringify(authenticatedUser));
