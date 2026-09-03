@@ -153,6 +153,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
   return (
     <div
       ref={canvasContainerRef}
+      data-tour="canvas"
       className="canvas-container relative flex-1 h-full w-full overflow-hidden select-none cursor-default"
       onMouseDown={onCanvasMouseDown}
       onMouseMove={onMouseMove}
@@ -290,7 +291,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
       </div>
 
       {(onGerarResumoTema || onGerarQuizTema) && (
-        <div className="absolute top-4 right-5 z-20 flex items-center gap-2">
+        <div data-tour="ia-tema" className="absolute top-4 right-5 z-20 flex items-center gap-2">
           {onGerarQuizTema && <button
             onClick={onGerarQuizTema}
             disabled={!temaSelecionado || gerandoQuizTema || nodes.length === 0}

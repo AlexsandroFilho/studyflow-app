@@ -18,6 +18,7 @@ public static class ServiceConfiguration
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+        services.AddScoped<IUsuarioPreferenciasService, UsuarioPreferenciasService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITemaRepository, TemaRepository>();
         services.AddScoped<ITemaService, TemaService>();

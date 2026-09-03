@@ -45,7 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col h-full z-20 select-none shrink-0 shadow-sm">
+    <aside data-tour="temas" className="w-64 bg-white border-r border-slate-200 flex flex-col h-full z-20 select-none shrink-0 shadow-sm">
       <div className="p-3 border-b border-slate-200">
         <div className="flex items-center gap-2">
           <div className="relative flex-1">

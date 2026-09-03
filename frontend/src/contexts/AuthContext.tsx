@@ -6,6 +6,7 @@ export interface AuthUser {
   nome: string;
   email: string;
   role: "Admin" | "User";
+  mostrarGuiaInicial: boolean;
 }
 
 interface AuthResponse {
@@ -14,6 +15,7 @@ interface AuthResponse {
   nome: string;
   email: string;
   role: "Admin" | "User";
+  mostrarGuiaInicial: boolean;
 }
 
 interface AuthContextValue {
@@ -24,6 +26,7 @@ interface AuthContextValue {
   login: (email: string, senha: string) => Promise<void>;
   register: (nome: string, email: string, senha: string, confirmacaoSenha: string) => Promise<void>;
   logout: () => void;
+  atualizarPreferenciaGuia: (mostrarGuiaInicial: boolean) => Promise<void>;
 }
 
 const TOKEN_KEY = "token";
@@ -48,7 +51,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const savedUser = localStorage.getItem(USER_KEY);
     if (!savedUser) return null;
     try {
-      return JSON.parse(savedUser) as AuthUser;
+      const parsed = JSON.parse(savedUser) as Partial<AuthUser>;
+      return { ...parsed, mostrarGuiaInicial: parsed.mostrarGuiaInicial ?? true } as AuthUser;
     } catch {
       localStorage.removeItem(USER_KEY);
       return null;
@@ -90,6 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       nome: response.nome,
       email: response.email,
       role: response.role,
+      mostrarGuiaInicial: response.mostrarGuiaInicial ?? true,
     };
     localStorage.setItem(TOKEN_KEY, response.token);
     localStorage.setItem(USER_KEY, JSON.stringify(authenticatedUser));
@@ -115,8 +120,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     window.location.href = "/login";
   };
 
+  const atualizarPreferenciaGuia = async (mostrarGuiaInicial: boolean) => {
+    await api.patch("/usuarios/preferencias/guia-inicial", { mostrarGuiaInicial });
+    setUser((usuarioAtual) => {
+      if (!usuarioAtual) return null;
+      const usuarioAtualizado = { ...usuarioAtual, mostrarGuiaInicial };
+      localStorage.setItem(USER_KEY, JSON.stringify(usuarioAtualizado));
+      return usuarioAtualizado;
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, isAuthenticated: Boolean(token && isTokenValid(token)), isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, isAuthenticated: Boolean(token && isTokenValid(token)), isLoading, login, register, logout, atualizarPreferenciaGuia }}>
       {children}
     </AuthContext.Provider>
   );

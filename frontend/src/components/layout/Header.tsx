@@ -1,5 +1,5 @@
 import React from "react";
-import { LayoutGrid, BookOpen, Plus, Network, LogOut, ShieldCheck } from "lucide-react";
+import { LayoutGrid, BookOpen, Plus, Network, LogOut, ShieldCheck, CircleHelp } from "lucide-react";
 
 export type ViewMode = "canvas" | "editor";
 
@@ -14,6 +14,7 @@ interface HeaderProps {
   onLogout: () => void;
   isAdmin: boolean;
   onOpenAdmin: () => void;
+  onOpenGuide: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -27,6 +28,7 @@ export const Header: React.FC<HeaderProps> = ({
   onLogout,
   isAdmin,
   onOpenAdmin,
+  onOpenGuide,
 }) => {
   return (
     <header className="h-14 border-b border-slate-200 bg-white px-5 flex items-center justify-between z-30 select-none shrink-0 shadow-sm">
@@ -71,9 +73,19 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="flex items-center gap-2">
+        <button
+          onClick={onOpenGuide}
+          data-tour="como-usar"
+          title="Como usar o StudyFlow"
+          className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-700"
+        >
+          <CircleHelp className="h-3.5 w-3.5" />
+          Como usar
+        </button>
         {isAdmin && <button onClick={onOpenAdmin} className="flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100"><ShieldCheck className="h-3.5 w-3.5" />Admin</button>}
         <button
           onClick={onOpenCreateTema}
+          data-tour="novo-tema"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors"
         >
           <Plus className="w-3.5 h-3.5 text-slate-500" />
@@ -82,6 +94,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         <button
           onClick={onOpenCreateNota}
+          data-tour="nova-nota"
           className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 border border-blue-600 shadow-sm transition-all"
         >
           <Plus className="w-3.5 h-3.5 font-bold" />

@@ -24,7 +24,8 @@ namespace StudyFlow.Api.Mappers
                 UserId: usuario.Id,
                 Nome: usuario.Nome,
                 Email: usuario.Email,
-                Role: usuario.Role.ToString());
+                Role: usuario.Role.ToString(),
+                MostrarGuiaInicial: usuario.MostrarGuiaInicial);
         }
     }
 }

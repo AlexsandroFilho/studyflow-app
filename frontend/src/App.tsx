@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Header, ViewMode } from "./components/layout/Header";
 import { Sidebar } from "./components/layout/Sidebar";
 import { CanvasBoard } from "./components/canvas/CanvasBoard";
@@ -24,6 +24,7 @@ import { QuizTema, TentativaQuiz } from "./types/quizTema";
 import { Position } from "./types/canvas";
 import { useSidebarVisibility } from "./hooks/useSidebarVisibility";
 import { useNavigate } from "react-router-dom";
+import { OnboardingTour } from "./components/onboarding/OnboardingTour";
 
 function obterMensagemErroIa(error: any): string {
   const mensagem = error?.response?.data?.message || error?.message || "";
@@ -33,7 +34,7 @@ function obterMensagemErroIa(error: any): string {
 }
 
 export function App() {
-  const { logout, user } = useAuth();
+  const { logout, user, atualizarPreferenciaGuia } = useAuth();
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<ViewMode>("canvas");
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -62,7 +63,15 @@ export function App() {
   const [gerandoQuiz, setGerandoQuiz] = useState(false);
   const [enviandoQuiz, setEnviandoQuiz] = useState(false);
   const [novaNotaPosition, setNovaNotaPosition] = useState<Position | null>(null);
+  const [guiaAberto, setGuiaAberto] = useState(false);
   const { isCollapsed: sidebarCollapsed, toggle: toggleSidebar } = useSidebarVisibility();
+
+  useEffect(() => {
+    if (!user?.mostrarGuiaInicial) return;
+    setViewMode("canvas");
+    if (sidebarCollapsed) toggleSidebar();
+    setGuiaAberto(true);
+  }, [user?.userId]);
 
   const {
     temas,
@@ -312,6 +321,11 @@ export function App() {
         onLogout={logout}
         isAdmin={user?.role === "Admin"}
         onOpenAdmin={() => navigate("/admin/fontes")}
+        onOpenGuide={() => {
+          setViewMode("canvas");
+          if (sidebarCollapsed) toggleSidebar();
+          setGuiaAberto(true);
+        }}
       />
 
       <div className="flex-1 flex overflow-hidden bg-[#F8FAFC]">
@@ -452,6 +466,14 @@ export function App() {
         title="Confirmar Exclusão"
         description={`Tem certeza que deseja excluir ${itemToDelete?.title}? Esta ação não pode ser desfeita.`}
         onConfirm={handleConfirmDelete}
+      />
+
+      <OnboardingTour
+        isOpen={guiaAberto}
+        onClose={async (dontShowAgain) => {
+          if (dontShowAgain) await atualizarPreferenciaGuia(false);
+          setGuiaAberto(false);
+        }}
       />
     </div>
   );

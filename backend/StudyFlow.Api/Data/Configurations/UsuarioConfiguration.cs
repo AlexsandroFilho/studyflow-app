@@ -34,6 +34,10 @@ namespace StudyFlow.Api.Data.Configurations
                 .HasConversion<int>()
                 .HasDefaultValue(UserRole.User)
                 .IsRequired();
+
+            builder.Property(u => u.MostrarGuiaInicial)
+                .HasDefaultValue(true)
+                .IsRequired();
         }
     }
 }

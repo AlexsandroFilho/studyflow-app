@@ -15,5 +15,6 @@ namespace StudyFlow.Api.DTOs
         Guid UserId,
         string Nome,
         string Email,
-        string Role);
+        string Role,
+        bool MostrarGuiaInicial);
 }
